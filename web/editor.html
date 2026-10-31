@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Language Colour Editor</title>
+
+  <script type="module" src="https://js.arcgis.com/calcite-components/3.3.2/calcite.esm.js"></script>
+  <link rel="stylesheet" href="https://js.arcgis.com/calcite-components/3.3.2/calcite.css" />
+
+  <link rel="stylesheet" href="editor.css" />
+  <script type="module" src="editor.js"></script>
+</head>
+<body>
+  <calcite-shell>
+    <calcite-panel heading="Language colours" description="Edits preview live in any open app tab. Save writes web/colors.json.">
+      <calcite-button id="save-button" slot="header-actions-end" icon-start="save" disabled>Save</calcite-button>
+      <div id="families"></div>
+    </calcite-panel>
+  </calcite-shell>
+
+  <!-- One colour picker, moved to whichever swatch was clicked -->
+  <calcite-popover id="picker-popover" label="Choose a colour" trigger-disabled auto-close placement="auto" overlay-positioning="fixed">
+    <calcite-color-picker id="picker" channels-disabled saved-disabled></calcite-color-picker>
+  </calcite-popover>
+
+  <calcite-alert id="save-alert" auto-close auto-close-duration="medium" label="Save status">
+    <div slot="title"></div>
+    <div slot="message"></div>
+  </calcite-alert>
+</body>
+</html>

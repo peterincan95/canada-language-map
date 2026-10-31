@@ -1,0 +1,332 @@
+member_id,column_name,parent_member_id,depth,is_leaf
+1,Total - Language spoken most often at home,,0,False
+2,Single responses,1,1,False
+3,Official languages,2,2,False
+4,English,3,3,True
+5,French,3,3,True
+6,Non-official languages,2,2,False
+7,Indigenous languages,6,3,False
+8,Algonquian languages,7,4,False
+9,Blackfoot,8,5,True
+10,Cree-Innu languages,8,5,False
+11,Atikamekw,10,6,True
+12,Cree languages,10,6,False
+13,Ililimowin (Moose Cree),12,7,True
+14,Inu Ayimun (Southern East Cree),12,7,True
+15,Iyiyiw-Ayimiwin (Northern East Cree),12,7,True
+16,Nehinawewin (Swampy Cree),12,7,True
+17,Nehiyawewin (Plains Cree),12,7,True
+18,Nihithawiwin (Woods Cree),12,7,True
+19,"Cree, n.o.s.",12,7,True
+20,Innu (Montagnais),10,6,True
+21,Naskapi,10,6,True
+22,Eastern Algonquian languages,8,5,False
+23,Mi'kmaq,22,6,True
+24,Wolastoqewi (Malecite),22,6,True
+25,Ojibway-Potawatomi languages,8,5,False
+26,Anicinabemowin (Algonquin),25,6,True
+27,Oji-Cree,25,6,True
+28,Ojibway languages,25,6,False
+29,Anishinaabemowin (Chippewa),28,7,True
+30,Daawaamwin (Odawa),28,7,True
+31,Saulteau (Western Ojibway),28,7,True
+32,"Ojibway, n.o.s.",28,7,True
+33,"Algonquian languages, n.i.e.",8,5,True
+34,Athabaskan languages,7,4,False
+35,Northern Athabaskan languages,34,5,False
+36,Dakelh (Carrier),35,6,True
+37,Dane-zaa (Beaver),35,6,True
+38,"Dene, n.o.s.",35,6,True
+39,Gwich'in,35,6,True
+40,Slavey-Hare languages,35,6,False
+41,Deh Gah Ghotie Zhatie (South Slavey),40,7,True
+42,Satuotine Yati (North Slavey),40,7,True
+43,"Slavey, n.o.s.",40,7,True
+44,Tahltan languages,35,6,False
+45,Kaska (Nahani),44,7,True
+46,Tahltan,44,7,True
+47,Tlicho (Dogrib),35,6,True
+48,Tse'khene (Sekani),35,6,True
+49,Tsilhqot'in (Chilcotin),35,6,True
+50,Tsuu T'ina (Sarsi),35,6,True
+51,Tutchone languages,35,6,False
+52,Northern Tutchone,51,7,True
+53,Southern Tutchone,51,7,True
+54,"Tutchone, n.o.s.",51,7,True
+55,Wetsuwet'en-Babine,35,6,True
+56,Tlingit,34,5,True
+57,"Athabaskan languages, n.i.e.",34,5,True
+58,Haida,7,4,True
+59,Inuktut (Inuit) languages,7,4,False
+60,Inuinnaqtun (Inuvialuktun),59,5,False
+61,Inuinnaqtun,60,6,True
+62,Inuvialuktun,60,6,True
+63,Inuktitut,59,5,True
+64,"Inuktut (Inuit) languages, n.i.e.",59,5,True
+65,Iroquoian languages,7,4,False
+66,Cayuga,65,5,True
+67,Mohawk,65,5,True
+68,Oneida,65,5,True
+69,"Iroquoian languages, n.i.e.",65,5,True
+70,Ktunaxa (Kutenai),7,4,True
+71,Michif,7,4,True
+72,Salish languages,7,4,False
+73,Halkomelem,72,5,True
+74,Lillooet,72,5,True
+75,Ntlakapamux (Thompson),72,5,True
+76,Secwepemctsin (Shuswap),72,5,True
+77,Squamish,72,5,True
+78,Straits,72,5,True
+79,Syilx (Okanagan),72,5,True
+80,"Salish languages, n.i.e.",72,5,True
+81,Siouan languages,7,4,False
+82,Assiniboine,81,5,True
+83,Dakota,81,5,True
+84,Stoney,81,5,True
+85,"Siouan languages, n.i.e.",81,5,True
+86,Tsimshian languages,7,4,False
+87,Gitxsan (Gitksan),86,5,True
+88,Nisga'a,86,5,True
+89,Tsimshian,86,5,True
+90,Wakashan languages,7,4,False
+91,Haisla,90,5,True
+92,Heiltsuk,90,5,True
+93,Kwak'wala (Kwakiutl),90,5,True
+94,Nuu-chah-nulth (Nootka),90,5,True
+95,"Wakashan languages, n.i.e.",90,5,True
+96,"Indigenous languages, n.i.e.",7,4,True
+97,"Indigenous languages, n.o.s.",7,4,True
+98,Non-Indigenous languages,6,3,False
+99,Afro-Asiatic languages,98,4,False
+100,Berber languages,99,5,False
+101,Kabyle,100,6,True
+102,Tamazight,100,6,True
+103,"Berber languages, n.i.e.",100,6,True
+104,Chadic languages,99,5,False
+105,Hausa,104,6,True
+106,Mina,104,6,True
+107,Coptic,99,5,True
+108,Cushitic languages,99,5,False
+109,Bilen,108,6,True
+110,Oromo,108,6,True
+111,Somali,108,6,True
+112,"Cushitic languages, n.i.e.",108,6,True
+113,Semitic languages,99,5,False
+114,Amharic,113,6,True
+115,Arabic,113,6,True
+116,Aramaic languages,113,6,False
+117,Assyrian Neo-Aramaic,116,7,True
+118,Chaldean Neo-Aramaic,116,7,True
+119,"Aramaic, n.o.s.",116,7,True
+120,Harari,113,6,True
+121,Hebrew,113,6,True
+122,Maltese,113,6,True
+123,Tigrigna,113,6,True
+124,"Semitic languages, n.i.e.",113,6,True
+125,Austro-Asiatic languages,98,4,False
+126,Khmer (Cambodian),125,5,True
+127,Vietnamese,125,5,True
+128,"Austro-Asiatic languages, n.i.e",125,5,True
+129,Austronesian languages,98,4,False
+130,Bikol,129,5,True
+131,"Bisaya, n.o.s.",129,5,True
+132,Cebuano,129,5,True
+133,Fijian,129,5,True
+134,Hiligaynon,129,5,True
+135,Ilocano,129,5,True
+136,Indonesian,129,5,True
+137,Kankanaey,129,5,True
+138,Kinaray-a,129,5,True
+139,Malagasy languages,129,5,False
+140,Merina,139,6,True
+141,"Malagasy, n.o.s.",139,6,True
+142,Malay,129,5,True
+143,"Pampangan (Kapampangan, Pampango)",129,5,True
+144,Pangasinan,129,5,True
+145,"Tagalog (Pilipino, Filipino)",129,5,True
+146,Waray-Waray,129,5,True
+147,"Austronesian languages, n.i.e.",129,5,True
+148,Creole languages,98,4,False
+149,Haitian Creole,148,5,True
+150,Jamaican English Creole,148,5,True
+151,Krio,148,5,True
+152,Morisyen,148,5,True
+153,Sango,148,5,True
+154,"Creole, n.o.s.",148,5,True
+155,"Creole languages, n.i.e.",148,5,True
+156,Dravidian languages,98,4,False
+157,Kannada,156,5,True
+158,Malayalam,156,5,True
+159,Tamil,156,5,True
+160,Telugu,156,5,True
+161,Tulu,156,5,True
+162,"Dravidian languages, n.i.e.",156,5,True
+163,Georgian,98,4,True
+164,Hmong-Mien languages,98,4,True
+165,Indo-European languages,98,4,False
+166,Albanian,165,5,True
+167,Armenian,165,5,True
+168,Balto-Slavic languages,165,5,False
+169,Baltic languages,168,6,False
+170,Latvian,169,7,True
+171,Lithuanian,169,7,True
+172,Slavic languages,168,6,False
+173,Belarusian,172,7,True
+174,Bulgarian,172,7,True
+175,Czech,172,7,True
+176,Macedonian,172,7,True
+177,Polish,172,7,True
+178,Russian,172,7,True
+179,Rusyn,172,7,True
+180,Serbo-Croatian,172,7,False
+181,Bosnian,180,8,True
+182,Croatian,180,8,True
+183,Serbian,180,8,True
+184,"Serbo-Croatian, n.i.e.",180,8,True
+185,Slovak,172,7,True
+186,Slovene (Slovenian),172,7,True
+187,Ukrainian,172,7,True
+188,"Slavic languages, n.i.e.",172,7,True
+189,Celtic languages,165,5,False
+190,Irish,189,6,True
+191,Scottish Gaelic,189,6,True
+192,Welsh,189,6,True
+193,"Celtic languages, n.i.e.",189,6,True
+194,Germanic languages,165,5,False
+195,Frisian,194,6,True
+196,High German languages,194,6,False
+197,German,196,7,True
+198,Pennsylvania German,196,7,True
+199,Swiss German,196,7,True
+200,Yiddish,196,7,True
+201,Low Saxon-Low Franconian languages,194,6,False
+202,Afrikaans,201,7,True
+203,Dutch,201,7,True
+204,"Low German, n.o.s.",201,7,True
+205,Low Saxon,201,7,True
+206,Plautdietsch,201,7,True
+207,Vlaams (Flemish),201,7,True
+208,Scandinavian languages,194,6,False
+209,Danish,208,7,True
+210,Icelandic,208,7,True
+211,Norwegian,208,7,True
+212,Swedish,208,7,True
+213,"Germanic languages, n.i.e.",194,6,True
+214,Greek,165,5,True
+215,Indo-Iranian languages,165,5,False
+216,Indo-Aryan languages,215,6,False
+217,Assamese,216,7,True
+218,Bengali,216,7,True
+219,Gujarati,216,7,True
+220,Hindi,216,7,True
+221,Kacchi,216,7,True
+222,Kashmiri,216,7,True
+223,Konkani,216,7,True
+224,Marathi,216,7,True
+225,Nepali,216,7,True
+226,Oriya languages,216,7,False
+227,Odia,226,8,True
+228,"Oriya, n.o.s.",226,8,True
+229,Punjabi (Panjabi),216,7,True
+230,Rohingya,216,7,True
+231,Sindhi,216,7,True
+232,Sinhala (Sinhalese),216,7,True
+233,Urdu,216,7,True
+234,"Indo-Aryan languages, n.i.e.",216,7,True
+235,Iranian languages,215,6,False
+236,Baluchi,235,7,True
+237,Kurdish,235,7,True
+238,Parsi,235,7,True
+239,Pashto,235,7,True
+240,Persian languages,235,7,False
+241,Dari,240,8,True
+242,Iranian Persian,240,8,True
+243,"Persian (Farsi), n.o.s.",240,8,True
+244,"Iranian languages, n.i.e.",235,7,True
+245,"Indo-Iranian languages, n.i.e.",215,6,True
+246,Italic (Romance) languages,165,5,False
+247,Catalan,246,6,True
+248,Italian,246,6,True
+249,Portuguese,246,6,True
+250,Romanian,246,6,True
+251,Spanish,246,6,True
+252,"Italic (Romance) languages, n.i.e.",246,6,True
+253,"Indo-European languages, n.i.e.",165,5,True
+254,Japanese,98,4,True
+255,Korean,98,4,True
+256,Mongolian,98,4,True
+257,Niger-Congo languages,98,4,False
+258,Akan (Twi),257,5,True
+259,Bamanankan,257,5,True
+260,Edo,257,5,True
+261,Éwé,257,5,True
+262,"Fulah (Pular, Pulaar, Fulfulde)",257,5,True
+263,Ga,257,5,True
+264,Ganda,257,5,True
+265,Gikuyu,257,5,True
+266,Igbo,257,5,True
+267,Kinyarwanda (Rwanda),257,5,True
+268,Lingala,257,5,True
+269,Luba-Kasai,257,5,True
+270,Mòoré,257,5,True
+271,Mwani,257,5,True
+272,Ndebele,257,5,True
+273,Rundi (Kirundi),257,5,True
+274,Shona,257,5,True
+275,Soninke,257,5,True
+276,Sotho-Tswana languages,257,5,True
+277,Swahili,257,5,True
+278,Wojenaka,257,5,True
+279,Wolof,257,5,True
+280,Yoruba,257,5,True
+281,"Niger-Congo languages, n.i.e.",257,5,True
+282,Nilo-Saharan languages,98,4,False
+283,Dinka,282,5,True
+284,Nuer,282,5,True
+285,"Nilo-Saharan languages, n.i.e.",282,5,True
+286,"African, n.o.s.",282,5,True
+287,Sign languages,98,4,False
+288,American Sign Language,287,5,True
+289,Quebec Sign Language,287,5,True
+290,"Sign languages, n.i.e.",287,5,True
+291,Sino-Tibetan languages,98,4,False
+292,Chinese languages,291,5,False
+293,Hakka,292,6,True
+294,Mandarin,292,6,True
+295,Min Dong,292,6,True
+296,"Min Nan (Chaochow, Teochow, Fukien, Taiwanese)",292,6,True
+297,Wu (Shanghainese),292,6,True
+298,Yue (Cantonese),292,6,True
+299,"Chinese, n.o.s.",292,6,True
+300,"Chinese languages, n.i.e.",292,6,True
+301,Tibeto-Burman languages,291,5,False
+302,Burmese,301,6,True
+303,Kuki-Chin languages,301,6,True
+304,Karenic languages,301,6,False
+305,S'gaw Karen,304,7,True
+306,"Karenic languages, n.i.e.",304,7,True
+307,Tibetan,301,6,True
+308,"Tibeto-Burman languages, n.i.e.",301,6,True
+309,"Sino-Tibetan languages, n.i.e.",291,5,True
+310,Tai-Kadai languages,98,4,False
+311,Lao,310,5,True
+312,Thai,310,5,True
+313,"Tai-Kadai languages, n.i.e.",310,5,True
+314,Turkic languages,98,4,False
+315,Azerbaijani,314,5,True
+316,Kazakh,314,5,True
+317,Turkish,314,5,True
+318,Uyghur,314,5,True
+319,Uzbek,314,5,True
+320,"Turkic languages, n.i.e.",314,5,True
+321,Uralic languages,98,4,False
+322,Estonian,321,5,True
+323,Finnish,321,5,True
+324,Hungarian,321,5,True
+325,"Other languages, n.i.e.",98,4,True
+326,Multiple responses,1,1,False
+327,English and French,326,2,True
+328,English and non-official language(s),326,2,True
+329,French and non-official language(s),326,2,True
+330,"English, French and non-official language(s)",326,2,True
+331,Multiple non-official languages,326,2,True

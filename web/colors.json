@@ -1,0 +1,264 @@
+{
+  "families": {
+    "Algonquian languages": "#DCAA00",
+    "Austro-Asiatic languages": "#A246C3",
+    "Austronesian languages": "#399AB8",
+    "Chinese languages": "#6E8C1E",
+    "Creole languages": "#2372B2",
+    "Cushitic languages": "#007C8E",
+    "Dravidian languages": "#2FB163",
+    "Germanic languages": "#C0061B",
+    "Greek": "#E1401E",
+    "Indo-Aryan languages": "#74335B",
+    "Inuktut (Inuit) languages": "#E17B10",
+    "Iranian languages": "#445276",
+    "Italic (Romance) languages": "#CF3A80",
+    "Korean": "#227733",
+    "Northern Athabaskan languages": "#DD9B05",
+    "Other languages": "#D9D9D9",
+    "Semitic languages": "#00766D",
+    "Siouan languages": "#E6D570",
+    "Slavic languages": "#D84E18"
+  },
+  "languages": {
+    "Afrikaans": {
+      "family": "Germanic languages"
+    },
+    "American Sign Language": {
+      "family": "Other languages"
+    },
+    "Amharic": {
+      "family": "Semitic languages"
+    },
+    "Anicinabemowin (Algonquin)": {
+      "family": "Algonquian languages"
+    },
+    "Arabic": {
+      "family": "Semitic languages"
+    },
+    "Armenian": {
+      "family": "Other languages"
+    },
+    "Assyrian Neo-Aramaic": {
+      "family": "Semitic languages"
+    },
+    "Atikamekw": {
+      "family": "Algonquian languages"
+    },
+    "Bengali": {
+      "family": "Indo-Aryan languages"
+    },
+    "Bilen": {
+      "family": "Cushitic languages"
+    },
+    "Bosnian": {
+      "family": "Slavic languages"
+    },
+    "Cebuano": {
+      "family": "Austronesian languages"
+    },
+    "Chinese, n.o.s.": {
+      "family": "Chinese languages"
+    },
+    "Cree, n.o.s.": {
+      "family": "Algonquian languages"
+    },
+    "Croatian": {
+      "family": "Slavic languages"
+    },
+    "Dakelh (Carrier)": {
+      "family": "Northern Athabaskan languages"
+    },
+    "Dari": {
+      "family": "Iranian languages"
+    },
+    "Dene, n.o.s.": {
+      "family": "Northern Athabaskan languages"
+    },
+    "Dutch": {
+      "family": "Germanic languages"
+    },
+    "Finnish": {
+      "family": "Other languages"
+    },
+    "German": {
+      "family": "Germanic languages"
+    },
+    "Germanic languages, n.i.e.": {
+      "family": "Germanic languages"
+    },
+    "Greek": {
+      "family": "Greek"
+    },
+    "Gujarati": {
+      "family": "Indo-Aryan languages"
+    },
+    "Haitian Creole": {
+      "family": "Creole languages"
+    },
+    "Hindi": {
+      "family": "Indo-Aryan languages"
+    },
+    "Hungarian": {
+      "family": "Other languages"
+    },
+    "Indonesian": {
+      "family": "Austronesian languages"
+    },
+    "Innu (Montagnais)": {
+      "family": "Algonquian languages"
+    },
+    "Inuktitut": {
+      "family": "Inuktut (Inuit) languages"
+    },
+    "Inuvialuktun": {
+      "family": "Inuktut (Inuit) languages"
+    },
+    "Iranian Persian": {
+      "family": "Iranian languages"
+    },
+    "Italian": {
+      "family": "Italic (Romance) languages"
+    },
+    "Japanese": {
+      "family": "Other languages"
+    },
+    "Khmer (Cambodian)": {
+      "family": "Austro-Asiatic languages"
+    },
+    "Korean": {
+      "family": "Korean"
+    },
+    "Kurdish": {
+      "family": "Iranian languages"
+    },
+    "Macedonian": {
+      "family": "Slavic languages"
+    },
+    "Malayalam": {
+      "family": "Dravidian languages"
+    },
+    "Mandarin": {
+      "family": "Chinese languages",
+      "color": "#8FB02C"
+    },
+    "Mi'kmaq": {
+      "family": "Algonquian languages"
+    },
+    "Nehiyawewin (Plains Cree)": {
+      "family": "Algonquian languages"
+    },
+    "Nepali": {
+      "family": "Indo-Aryan languages"
+    },
+    "Niger-Congo languages, n.i.e.": {
+      "family": "Other languages"
+    },
+    "Nilo-Saharan languages, n.i.e.": {
+      "family": "Other languages"
+    },
+    "Oji-Cree": {
+      "family": "Algonquian languages"
+    },
+    "Ojibway, n.o.s.": {
+      "family": "Algonquian languages"
+    },
+    "Other languages, n.i.e.": {
+      "family": "Other languages"
+    },
+    "Pennsylvania German": {
+      "family": "Germanic languages"
+    },
+    "Polish": {
+      "family": "Slavic languages"
+    },
+    "Portuguese": {
+      "family": "Italic (Romance) languages"
+    },
+    "Punjabi (Panjabi)": {
+      "family": "Indo-Aryan languages"
+    },
+    "Quebec Sign Language": {
+      "family": "Other languages"
+    },
+    "Romanian": {
+      "family": "Italic (Romance) languages"
+    },
+    "Russian": {
+      "family": "Slavic languages"
+    },
+    "S'gaw Karen": {
+      "family": "Other languages"
+    },
+    "Secwepemctsin (Shuswap)": {
+      "family": "Other languages"
+    },
+    "Serbian": {
+      "family": "Slavic languages"
+    },
+    "Sign languages, n.i.e.": {
+      "family": "Other languages"
+    },
+    "Slavey, n.o.s.": {
+      "family": "Northern Athabaskan languages"
+    },
+    "Slovak": {
+      "family": "Slavic languages"
+    },
+    "Somali": {
+      "family": "Cushitic languages"
+    },
+    "Spanish": {
+      "family": "Italic (Romance) languages"
+    },
+    "Stoney": {
+      "family": "Siouan languages"
+    },
+    "Straits": {
+      "family": "Other languages"
+    },
+    "Swiss German": {
+      "family": "Germanic languages"
+    },
+    "Tagalog (Pilipino, Filipino)": {
+      "family": "Austronesian languages"
+    },
+    "Tamil": {
+      "family": "Dravidian languages"
+    },
+    "Telugu": {
+      "family": "Dravidian languages"
+    },
+    "Thai": {
+      "family": "Other languages"
+    },
+    "Tibetan": {
+      "family": "Other languages"
+    },
+    "Tigrigna": {
+      "family": "Semitic languages"
+    },
+    "Tlicho (Dogrib)": {
+      "family": "Northern Athabaskan languages"
+    },
+    "Ukrainian": {
+      "family": "Slavic languages"
+    },
+    "Urdu": {
+      "family": "Indo-Aryan languages"
+    },
+    "Vietnamese": {
+      "family": "Austro-Asiatic languages"
+    },
+    "Wolastoqewi (Malecite)": {
+      "family": "Algonquian languages"
+    },
+    "Yiddish": {
+      "family": "Germanic languages"
+    },
+    "Yue (Cantonese)": {
+      "family": "Chinese languages",
+      "color": "#63A81E"
+    }
+  }
+}

@@ -1,0 +1,27 @@
+html, body { margin: 0; height: 100%; }
+
+#families {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: var(--calcite-spacing-md, 12px);
+}
+
+/* Clickable swatch that opens the shared colour picker */
+.swatch-button {
+  display: inline-flex;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+.swatch-button:focus-visible {
+  outline: 2px solid var(--calcite-color-brand);
+  outline-offset: 2px;
+}
+
+.family-color {
+  display: flex;
+  align-items: center;
+  gap: var(--calcite-spacing-sm, 8px);
+  margin-block-end: var(--calcite-spacing-sm, 8px);
+}

@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Canada Languages Interactive</title>
+
+  <script type="module" src="https://js.arcgis.com/calcite-components/3.3.2/calcite.esm.js"></script>
+  <link rel="stylesheet" href="https://js.arcgis.com/4.34/esri/themes/light/main.css" />
+  <script src="https://js.arcgis.com/4.34/"></script>
+  <script type="module" src="https://js.arcgis.com/4.34/map-components/"></script>
+
+  <link rel="stylesheet" href="style.css" />
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <!-- Web map: "Canada Languages Interactive" -->
+  <arcgis-map item-id="58b237790eba453bb35c7cd2c407bc18"></arcgis-map>
+
+  <div id="tooltip-anchor"></div>
+  <calcite-tooltip id="hover-tooltip" reference-element="tooltip-anchor" placement="right" offset-distance="12" overlay-positioning="fixed">
+    <div class="tooltip-content">
+      <calcite-color-picker-swatch id="tooltip-swatch" scale="m"></calcite-color-picker-swatch>
+      <div class="tooltip-text">
+        <span id="tooltip-label"></span>
+        <span id="tooltip-pct"></span>
+      </div>
+    </div>
+  </calcite-tooltip>
+</body>
+</html>

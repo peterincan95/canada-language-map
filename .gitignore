@@ -1,0 +1,16 @@
+# Raw StatCan downloads (~1.8 GB, over GitHub's 100 MB file limit).
+# Re-download with the URLs in README.md.
+data/raw/
+
+# Temp file dev_server.py writes before replacing colors.json
+web/colors.json.tmp
+
+# Python
+__pycache__/
+*.pyc
+
+# Office lock files and OS clutter
+~$*
+Thumbs.db
+desktop.ini
+.DS_Store
