@@ -5,6 +5,16 @@ from the 2021 Census. Each geography is coloured by its most common
 non-official language (English and French excluded), with a hover tooltip
 showing the language and its share of the population.
 
+**Live site:** <https://peterincan95.github.io/canada-language-map/>
+
+## Branches and releases
+
+- `dev` is the default branch. Feature branches start from `dev` and merge back
+  into it by pull request.
+- `main` is production. Every push to `main` deploys `web/` to GitHub Pages
+  (see `.github/workflows/deploy-pages.yml`); the colour editor is left out.
+- To release, open a pull request from `dev` into `main` and merge it.
+
 ## Run it locally
 
 From the repo root:

@@ -59,5 +59,9 @@ the file layout and how to rebuild the data; this file covers how to work on it.
 
 ## Git
 
-- Work on a branch and open a PR; don't commit straight to `main`.
+- `dev` is the default branch; `main` is production and deploys to GitHub Pages
+  on every push. Branch feature work from `dev` and open PRs into `dev`.
+  Releases are a `dev` → `main` PR. Never commit or push straight to `main`.
 - Commit, push and open PRs only when the user asks.
+- Everything under `web/` goes live on release except `editor.*`, so don't put
+  local-only tools or secrets there.
