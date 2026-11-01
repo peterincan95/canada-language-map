@@ -25,8 +25,18 @@ MAX_BYTES = 1_000_000
 
 def validate_palette(palette):
     """Raise ValueError unless palette matches the colors.json layout."""
-    if not isinstance(palette, dict) or set(palette) != {"families", "languages"}:
-        raise ValueError('expected an object with "families" and "languages"')
+    if not isinstance(palette, dict) or not {"families", "languages"} <= set(palette) <= {
+        "families",
+        "languages",
+        "composition",
+    }:
+        raise ValueError('expected an object with "families", "languages" and optionally "composition"')
+    composition = palette.get("composition", {})
+    if not isinstance(composition, dict):
+        raise ValueError('"composition" must be an object')
+    for name, color in composition.items():
+        if not isinstance(color, str) or not HEX.fullmatch(color):
+            raise ValueError(f"composition {name!r}: colour must be #RRGGBB")
     families, languages = palette["families"], palette["languages"]
     if not isinstance(families, dict) or not isinstance(languages, dict):
         raise ValueError('"families" and "languages" must be objects')

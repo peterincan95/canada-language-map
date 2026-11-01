@@ -15,7 +15,12 @@
 </head>
 <body>
   <!-- Web map: "Canada Languages Interactive" -->
-  <arcgis-map item-id="58b237790eba453bb35c7cd2c407bc18"></arcgis-map>
+  <arcgis-map item-id="58b237790eba453bb35c7cd2c407bc18">
+    <calcite-segmented-control id="view-switch" slot="top-right" label="Map view">
+      <calcite-segmented-control-item value="predominant" checked>Most common other language</calcite-segmented-control-item>
+      <calcite-segmented-control-item value="composition">English / French / Other</calcite-segmented-control-item>
+    </calcite-segmented-control>
+  </arcgis-map>
 
   <div id="tooltip-anchor"></div>
   <calcite-tooltip id="hover-tooltip" reference-element="tooltip-anchor" placement="right" offset-distance="12" overlay-positioning="fixed">

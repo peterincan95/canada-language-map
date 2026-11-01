@@ -5,6 +5,8 @@
 //   languages: { "German": { "family": "Germanic languages" },
 //                "Yiddish": { "family": "Germanic languages", "color": "#123456" } }
 // A language uses its own "color" when it has one, otherwise its family's.
+//   composition: { "English": "#CA0011", "French": ..., "Non-official languages": ... }
+//                blended by population share in the English / French / Other view.
 
 // editor.html posts the whole palette here on every change so open app tabs
 // can preview it before it is saved
