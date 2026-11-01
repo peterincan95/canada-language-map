@@ -40,26 +40,97 @@ const COUNT_FIELDS = {
 };
 const NO_DATA_COLOR = "#BFBFBF";
 
+// The three composition categories: key in colors.json "composition", tooltip
+// label, and how much of each response type counts towards it (multiple
+// responses split evenly between the categories they name). The map's Arcade
+// and the tooltip both work from this table, so they always agree.
+const CATEGORIES = [
+  { key: "English", label: "English", split: { e: 1, ef: 1 / 2, en: 1 / 2, efn: 1 / 3 } },
+  { key: "French", label: "French", split: { f: 1, ef: 1 / 2, fn: 1 / 2, efn: 1 / 3 } },
+  { key: "Non-official languages", label: "Other", split: { n: 1, en: 1 / 2, fn: 1 / 2, efn: 1 / 3, nn: 1 } },
+];
+
+// Share of each category (summing to 1) for a feature's attributes, or null if it has no data
+function compositionShares(attributes) {
+  const counts = CATEGORIES.map(({ split }) =>
+    Object.entries(split).reduce((sum, [v, weight]) => sum + (attributes[COUNT_FIELDS[v]] ?? 0) * weight, 0),
+  );
+  const total = counts.reduce((a, b) => a + b, 0);
+  return total > 0 ? counts.map((c) => c / total) : null;
+}
+
+// Colour space the composition view blends in: "oklab" (perceptual, so mixes
+// stay bright and look evenly spaced) or "rgb" (plain weighted average of RGB values)
+const BLEND_SPACE = "oklab";
+
 const hexToRgb = (hex) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
 
-// Arcade for the composition view: split each multiple response evenly between
-// the categories it names, then blend the three category colours by share
-// (a weighted average of their RGB values)
+// "#RRGGBB" -> [L, a, b] in OKLab (Björn Ottosson's matrices, via linear sRGB)
+function hexToOklab(hex) {
+  const [r, g, b] = hexToRgb(hex).map((c) => {
+    const v = c / 255;
+    return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+  });
+  const l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b);
+  const m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b);
+  const s = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b);
+  return [
+    0.2104542553 * l + 0.793617785 * m - 0.0040720468 * s,
+    1.9779984951 * l - 2.428592205 * m + 0.4505937099 * s,
+    0.0259040371 * l + 0.7827717662 * m - 0.808675766 * s,
+  ];
+}
+
+// Arcade for the composition view: compute each category's share as in
+// compositionShares, then blend the category colours by share in BLEND_SPACE.
+// The category colours are constants, so their RGB/OKLab values are worked out
+// here and written into the expression; Arcade only does the per-feature part.
 function compositionExpression() {
-  const { English, French, "Non-official languages": other } = palette.composition;
-  const [english, french, nonOfficial] = [English, French, other].map(hexToRgb);
-  const channel = (i) => `channel(${english[i]}, ${french[i]}, ${nonOfficial[i]})`;
   const reads = Object.entries(COUNT_FIELDS).map(([v, field]) => `var ${v} = DefaultValue($feature.${field}, 0);`);
+  const sums = CATEGORIES.map(({ split }) =>
+    Object.entries(split)
+      .map(([v, weight]) => `${v} * ${weight}`)
+      .join(" + "),
+  );
+  const toSpace = BLEND_SPACE === "oklab" ? hexToOklab : hexToRgb;
+  const values = CATEGORIES.map(({ key }) => toSpace(palette.composition[key]));
+  // Share-weighted average of component i across the three category colours
+  const mix = (i) => `(shares[0] * ${values[0][i]} + shares[1] * ${values[1][i]} + shares[2] * ${values[2][i]}) / total`;
+
+  const blend =
+    BLEND_SPACE === "oklab"
+      ? `// Average in OKLab, then convert back: OKLab -> LMS -> linear sRGB -> sRGB
+var okL = ${mix(0)};
+var okA = ${mix(1)};
+var okB = ${mix(2)};
+var l_ = okL + 0.3963377774 * okA + 0.2158037573 * okB;
+var m_ = okL - 0.1055613458 * okA - 0.0638541728 * okB;
+var s_ = okL - 0.0894841775 * okA - 1.291485548 * okB;
+var l = l_ * l_ * l_;
+var m = m_ * m_ * m_;
+var s = s_ * s_ * s_;
+// Linear sRGB channel (0-1) -> gamma-encoded hex pair
+function encode(c) {
+  var v = Min(Max(c, 0), 1);
+  return hex2(255 * IIf(v <= 0.0031308, 12.92 * v, 1.055 * Pow(v, 1 / 2.4) - 0.055));
+}
+return "#" +
+  encode(4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s) +
+  encode(-1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s) +
+  encode(-0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s);`
+      : `return "#" + hex2(${mix(0)}) + hex2(${mix(1)}) + hex2(${mix(2)});`;
+
   return `${reads.join("\n")}
-var shares = [e + ef / 2 + en / 2 + efn / 3, f + ef / 2 + fn / 2 + efn / 3, n + en / 2 + fn / 2 + efn / 3 + nn];
+var shares = [${sums.join(", ")}];
 var total = shares[0] + shares[1] + shares[2];
 if (total <= 0) { return "${NO_DATA_COLOR}"; }
 var digits = "0123456789ABCDEF";
-function channel(english, french, other) {
-  var v = Round((shares[0] * english + shares[1] * french + shares[2] * other) / total);
-  return Mid(digits, Floor(v / 16), 1) + Mid(digits, v % 16, 1);
+// 0-255 -> two hex digits
+function hex2(v) {
+  var c = Min(Max(Round(v), 0), 255);
+  return Mid(digits, Floor(c / 16), 1) + Mid(digits, c % 16, 1);
 }
-return "#" + ${channel(0)} + ${channel(1)} + ${channel(2)};`;
+${blend}`;
 }
 
 const mapEl = document.querySelector("arcgis-map");
@@ -68,6 +139,20 @@ const tooltip = document.getElementById("hover-tooltip");
 const swatch = document.getElementById("tooltip-swatch");
 const label = document.getElementById("tooltip-label");
 const pct = document.getElementById("tooltip-pct");
+const predominantContent = document.getElementById("tooltip-predominant");
+const compositionContent = document.getElementById("tooltip-composition");
+const geoName = document.getElementById("tooltip-geo");
+const bar = document.getElementById("composition-bar");
+const barValues = document.getElementById("composition-values");
+
+// Geography name fields, by layer; the composition tooltip shows whichever a feature has
+const NAME_FIELDS = ["PRNAME", "CDNAME", "CTNAME", "CMANAME"];
+
+// Credit shown in the map's attribution line for every data layer
+const DATA_CREDIT = "Stats Canada, 2021 Canadian Census";
+
+// Web map layers that only belong in the predominant view (TractOutline also carries the tract labels)
+const PREDOMINANT_ONLY_LAYERS = ["TractOutline"];
 
 // Feature layers in the web map that carry both tooltip fields
 const hoverLayers = [];
@@ -78,8 +163,9 @@ async function registerLayer(layer) {
   const names = layer.fields.map((f) => f.name);
   if (!names.includes(LANG_FIELD) || !names.includes(HEX_FIELD)) return;
   // hitTest only returns attributes the layer has fetched
-  const extra = names.includes(PCT_FIELD) ? [PCT_FIELD] : [];
-  layer.outFields = [...new Set([...(layer.outFields ?? []), LANG_FIELD, HEX_FIELD, ...extra])];
+  const wanted = [LANG_FIELD, HEX_FIELD, PCT_FIELD, ...NAME_FIELDS, ...Object.values(COUNT_FIELDS)];
+  layer.outFields = [...new Set([...(layer.outFields ?? []), ...wanted.filter((f) => names.includes(f))])];
+  layer.copyright = DATA_CREDIT;
   hoverLayers.push(layer);
   applyColors(layer);
 }
@@ -214,6 +300,10 @@ new BroadcastChannel(PALETTE_CHANNEL).onmessage = ({ data }) => {
 document.getElementById("view-switch").addEventListener("calciteSegmentedControlChange", (event) => {
   currentView = event.target.value;
   hoverLayers.forEach(applyColors);
+  mapEl.view?.map.allLayers
+    .filter((layer) => PREDOMINANT_ONLY_LAYERS.includes(layer.title))
+    .forEach((layer) => (layer.visible = currentView === "predominant"));
+  hideTooltip();
 });
 
 function colorFor(attributes) {
@@ -225,7 +315,7 @@ function hideTooltip() {
   tooltip.open = false;
 }
 
-function showTooltip(view, screenPoint, attributes) {
+function fillPredominantTooltip(attributes) {
   const color = colorFor(attributes);
   swatch.hidden = !color;
   if (color) swatch.color = color;
@@ -233,6 +323,48 @@ function showTooltip(view, screenPoint, attributes) {
   const share = attributes[PCT_FIELD];
   pct.hidden = typeof share !== "number";
   if (!pct.hidden) pct.textContent = pctFormat.format(share);
+}
+
+// Geography name, a stacked bar of the English / French / Other split, and the shares beneath it
+// Tracts are only numbered, so they're shown with their metro area: "Toronto (0286.00)"
+function geographyName(attributes) {
+  const { CTNAME: tract, CMANAME: metro } = attributes;
+  if (tract) return metro ? `${metro} (${tract})` : tract;
+  const nameField = NAME_FIELDS.find((field) => attributes[field]);
+  return nameField ? attributes[nameField] : "";
+}
+
+function fillCompositionTooltip(attributes) {
+  geoName.textContent = geographyName(attributes);
+  const shares = compositionShares(attributes);
+  bar.hidden = !shares;
+  barValues.replaceChildren();
+  if (!shares) {
+    barValues.textContent = "No data";
+    return;
+  }
+  CATEGORIES.forEach(({ key, label: categoryLabel }, i) => {
+    const color = palette.composition[key];
+    const segment = bar.children[i];
+    segment.style.width = `${shares[i] * 100}%`;
+    segment.style.background = color;
+    const value = document.createElement("div");
+    value.className = "composition-value";
+    value.style.setProperty("--category-color", color);
+    const name = document.createElement("span");
+    name.className = "composition-label";
+    name.textContent = categoryLabel;
+    value.append(name, pctFormat.format(shares[i]));
+    barValues.append(value);
+  });
+}
+
+function showTooltip(view, screenPoint, attributes) {
+  const composition = currentView === "composition";
+  predominantContent.hidden = composition;
+  compositionContent.hidden = !composition;
+  if (composition) fillCompositionTooltip(attributes);
+  else fillPredominantTooltip(attributes);
 
   const rect = view.container.getBoundingClientRect();
   anchor.style.left = `${rect.left + screenPoint.x}px`;
