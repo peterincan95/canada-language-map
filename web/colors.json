@@ -260,5 +260,10 @@
       "family": "Chinese languages",
       "color": "#63A81E"
     }
+  },
+  "composition": {
+    "English": "#CA0011",
+    "French": "#007E9D",
+    "Non-official languages": "#DCAA00"
   }
 }
