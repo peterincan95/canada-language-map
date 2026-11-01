@@ -24,11 +24,22 @@
 
   <div id="tooltip-anchor"></div>
   <calcite-tooltip id="hover-tooltip" reference-element="tooltip-anchor" placement="right" offset-distance="12" overlay-positioning="fixed">
-    <div class="tooltip-content">
-      <calcite-color-picker-swatch id="tooltip-swatch" scale="m"></calcite-color-picker-swatch>
-      <div class="tooltip-text">
-        <span id="tooltip-label"></span>
-        <span id="tooltip-pct"></span>
+    <div class="tooltip-body">
+      <!-- Most common other language view -->
+      <div id="tooltip-predominant" class="tooltip-content">
+        <calcite-color-picker-swatch id="tooltip-swatch" scale="m"></calcite-color-picker-swatch>
+        <div class="tooltip-text">
+          <span id="tooltip-label"></span>
+          <span id="tooltip-pct"></span>
+        </div>
+      </div>
+      <!-- English / French / Other view -->
+      <div id="tooltip-composition" class="tooltip-composition" hidden>
+        <span id="tooltip-geo" class="tooltip-title"></span>
+        <div id="composition-bar" class="composition-bar">
+          <span></span><span></span><span></span>
+        </div>
+        <div id="composition-values" class="composition-values"></div>
       </div>
     </div>
   </calcite-tooltip>

@@ -8,6 +8,12 @@ arcgis-map { display: block; height: 100%; }
   height: 1px;
   pointer-events: none;
 }
+/* Keep [hidden] working on elements styled with display: flex */
+[hidden] { display: none !important; }
+
+/* Fixed width so the tooltip doesn't resize with its contents */
+.tooltip-body { width: 240px; }
+
 .tooltip-content {
   display: flex;
   align-items: center;
@@ -16,4 +22,38 @@ arcgis-map { display: block; height: 100%; }
 .tooltip-text {
   display: flex;
   flex-direction: column;
+}
+
+/* English / French / Other tooltip */
+.tooltip-composition {
+  display: flex;
+  flex-direction: column;
+  gap: var(--calcite-spacing-sm, 8px);
+}
+.tooltip-title { font-weight: var(--calcite-font-weight-semibold, 600); }
+.composition-bar {
+  display: flex;
+  height: 12px;
+  border-radius: 2px;
+  overflow: hidden;
+}
+.composition-values {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--calcite-font-size--1, 12px);
+}
+/* Category name over its share */
+.composition-value {
+  display: flex;
+  flex-direction: column;
+}
+/* Small colour key before each category name */
+.composition-label::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-inline-end: 4px;
+  border-radius: 1px;
+  background: var(--category-color);
 }
