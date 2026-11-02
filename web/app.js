@@ -558,12 +558,11 @@ function drawLegend(shares) {
   });
 
   // The selected geography: its own blend colour, ringed so it stands out
+  // (ring colours are in style.css)
   if (shares) {
     const [x, y] = legendPoint(shares);
-    parts.push(svgElement("circle", { cx: x, cy: y, r: 7, fill: "none", stroke: "#1F1F1F", "stroke-width": 1.5 }));
-    parts.push(
-      svgElement("circle", { cx: x, cy: y, r: 5, fill: blendComposition(shares), stroke: "#FFFFFF", "stroke-width": 2 }),
-    );
+    parts.push(svgElement("circle", { cx: x, cy: y, r: 7, class: "legend-marker-ring" }));
+    parts.push(svgElement("circle", { cx: x, cy: y, r: 5, fill: blendComposition(shares), class: "legend-marker" }));
   }
   legend.replaceChildren(...parts);
 }
@@ -636,8 +635,22 @@ function showTooltip(view, screenPoint, attributes) {
   tooltip.reposition();
 }
 
+// The panel floats over the map, so pad the view by the panel's width (plus
+// the same gap on its far side): the map's centre, zoom-to and widgets then
+// work within the visible part of the map rather than under the panel
+function padViewForPanel(view) {
+  const panel = document.getElementById("side-panel");
+  const update = () => {
+    const rect = panel.getBoundingClientRect();
+    view.padding = { ...view.padding, left: Math.round(rect.right + rect.left) };
+  };
+  new ResizeObserver(update).observe(panel);
+  update();
+}
+
 async function init() {
   const view = mapEl.view;
+  padViewForPanel(view);
   await Promise.all(view.map.allLayers.toArray().map(registerLayer));
 
   // Ignore hit test results that come back after a newer pointer move
