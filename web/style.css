@@ -13,8 +13,9 @@
 :root {
   --font-body: "Kumbh Sans", sans-serif;            /* panel text, toggle, table, tooltips */
   --font-heading: "Bona Nova", serif;      /* app title and geography names */
-  --font-weight-heading: 600;
+  --font-weight-heading: 500;
   --font-weight-emphasis: 600;                            /* language names in the prose */
+  --font-weight-table-header: 700;                        /* Language / Speakers / Share */
 
   /* ---- 2. Colours: plug hex codes in here ------------------------------ */
   --color-panel-background: #1f1b1c;
@@ -23,6 +24,7 @@
   --color-heading: #fdf5d4;             /* geography name in the panel */
   --color-body-text: #fdf5d4;           /* prose, table text */
   --color-muted-text: #fff6d5;          /* table headings, secondary text */
+  --color-intro-text: #fdf5d4;          /* intro paragraph under the title */
   --color-divider: #383032;             /* lines between sections */
   --color-accent: #fdf5d4;              /* selected toggle, notice stripe */
   --color-accent-text: #1f1b1c;         /* text on the selected toggle */
@@ -31,6 +33,8 @@
   --color-tooltip-text: #fdf5d4;
   --color-legend-marker-ring: #1F1F1F;  /* ring around the selected area in the triangle */
   --color-legend-marker-inner-ring: #FFFFFF;
+  --color-scrollbar-thumb: #5A4F52;     /* side panel scrollbar: the part you drag */
+  --color-scrollbar-track: #1F1B1C;     /* side panel scrollbar: the channel behind it */
 
   /* ---- 3. Shape and size ----------------------------------------------- */
   --panel-width: 360px;
@@ -52,6 +56,9 @@
   --calcite-color-brand-press: var(--color-accent);
   --calcite-color-text-inverse: var(--color-accent-text);
 }
+
+/* Table headings: Calcite sets their weight from its "medium" font weight */
+calcite-table-header { --calcite-font-weight-medium: var(--font-weight-table-header); }
 
 calcite-tooltip {
   --calcite-tooltip-background-color: var(--color-tooltip-background);
@@ -77,8 +84,14 @@ arcgis-map { display: block; height: 100%; }
   inset-block-start: var(--panel-inset);
   inset-inline-start: var(--panel-inset);
   width: var(--panel-width);
-  /* Explicit height: calcite-panel otherwise forces 100% and ignores a bottom inset */
-  height: calc(100% - 2 * var(--panel-inset));
+  /* Only as tall as its content, up to the screen height minus the insets;
+     beyond that the panel's content scrolls. calcite-panel forces 100% height
+     unless overridden, and needs to be a column flexbox for the cap to make
+     its content area scroll rather than clip. */
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  max-height: calc(100% - 2 * var(--panel-inset));
   border-radius: var(--panel-radius);
   overflow: hidden;
   box-shadow: var(--panel-shadow);
@@ -93,10 +106,27 @@ arcgis-map { display: block; height: 100%; }
   --calcite-color-text-3: var(--color-muted-text);
   --calcite-color-border-3: var(--color-divider);
   --calcite-panel-header-background-color: var(--color-panel-header-background);
+  --calcite-panel-header-border-block-end: none;   /* no line under the title */
+  /* Inherited by the panel's scrolling content area (scrollbar width isn't
+     inherited, so it can't be changed from here) */
+  scrollbar-color: var(--color-scrollbar-thumb) var(--color-scrollbar-track);
 }
 
 .panel-section { padding: var(--calcite-spacing-md, 12px); }
 .panel-section + .panel-section { padding-block-start: 0; }
+
+/* Intro paragraph between the title and the view toggle */
+/* Space under the title: Calcite's header adds 14px below it, so with no
+   bottom padding on the title this leaves ~19px between title and intro */
+.panel-section.intro { padding-block-start: 5px; }
+.intro p {
+  margin: 0;
+  color: var(--color-intro-text);
+}
+.intro p + p { margin-block-start: var(--calcite-spacing-sm, 8px); }
+/* Line under the intro: the section's own padding provides the gap below it,
+   so it sits evenly between the text and the view toggle */
+.info-divider.intro-divider { margin-block-end: 0; }
 
 /* ==========================================================================
    Panel contents
@@ -105,9 +135,10 @@ arcgis-map { display: block; height: 100%; }
 .app-title {
   margin: 0;
   padding: var(--calcite-spacing-md, 12px);
+  padding-block-end: 0;
   font-family: var(--font-heading);
   font-weight: var(--font-weight-heading);
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   color: var(--color-title);
 }
 
@@ -139,7 +170,7 @@ arcgis-map { display: block; height: 100%; }
 }
 .composition-legend text {
   font-family: var(--font-body);
-  font-size: 12px;
+  font-size: 16px;
   font-weight: var(--font-weight-emphasis);
 }
 .legend-marker-ring {
