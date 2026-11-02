@@ -10,6 +10,12 @@ const pctFormat = new Intl.NumberFormat(undefined, {
   minimumFractionDigits: 1,
   maximumFractionDigits: 1,
 });
+// 0.02534 -> "2.53%" (Share column of the language table)
+const tableShareFormat = new Intl.NumberFormat(undefined, {
+  style: "percent",
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+});
 // 1185 -> "1,185"
 const countFormat = new Intl.NumberFormat();
 
@@ -26,8 +32,9 @@ let palette = await loadPalette();
 let colors = resolvePalette(palette);
 
 // Which view the map shows: "predominant" (most common non-official language)
-// or "composition" (English / French / non-official shares blended into one colour)
-let currentView = "predominant";
+// or "composition" (English / French / non-official shares blended into one colour).
+// It starts on whichever toggle item index.html marks as checked.
+let currentView = document.querySelector("#view-switch [checked]")?.getAttribute("value") ?? "composition";
 
 // Arcade for the symbol's colour: look the language up in colors, falling
 // back to the layer's Hex field for anything colors.json doesn't list
@@ -343,12 +350,17 @@ new BroadcastChannel(PALETTE_CHANNEL).onmessage = ({ data }) => {
   showInfo();
 };
 
-document.getElementById("view-switch").addEventListener("calciteSegmentedControlChange", (event) => {
-  currentView = event.target.value;
-  hoverLayers.forEach(applyColors);
+// Show or hide the layers that only belong in the predominant view
+function applyLayerVisibility() {
   mapEl.view?.map.allLayers
     .filter((layer) => PREDOMINANT_ONLY_LAYERS.includes(layer.title))
     .forEach((layer) => (layer.visible = currentView === "predominant"));
+}
+
+document.getElementById("view-switch").addEventListener("calciteSegmentedControlChange", (event) => {
+  currentView = event.target.value;
+  hoverLayers.forEach(applyColors);
+  applyLayerVisibility();
   hideTooltip();
   showInfo();
 });
@@ -455,7 +467,7 @@ function renderPredominantInfo({ layer, attributes }) {
       row.append(
         tableCell(name),
         tableCell(countFormat.format(count), "end"),
-        tableCell(total ? pctFormat.format(count / total) : "", "end"),
+        tableCell(total ? tableShareFormat.format(count / total) : "", "end"),
       );
       return row;
     });
@@ -652,6 +664,7 @@ async function init() {
   const view = mapEl.view;
   padViewForPanel(view);
   await Promise.all(view.map.allLayers.toArray().map(registerLayer));
+  applyLayerVisibility();
 
   // Ignore hit test results that come back after a newer pointer move
   let latestMove = 0;

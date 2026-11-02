@@ -21,13 +21,18 @@
     <!-- Left panel, floating over the map: title, view toggle, details of the clicked geography -->
     <calcite-panel id="side-panel" class="side-panel">
       <h1 slot="header-content" class="app-title">Canada's Linguistic Tapestry</h1>
+      <div class="panel-section intro">
+        <p>Respondants to the 2021 Canadian senses reported speaking over 200 languages at home across the country. Use this map to explore what Canadians are speaking and where.</p><p> The <b>Official Languages</b> view breaks down speakers of Canada's two official languages English and French, and all other languages. The <b>Other Languages</b> view breaks down the speakers of all 200+ non-official languages.</p>
+        <hr class="info-divider intro-divider" />
+      </div>
       <div class="panel-section">
         <calcite-segmented-control id="view-switch" label="Map view" width="full">
-          <calcite-segmented-control-item value="composition">Official Languages</calcite-segmented-control-item>
-          <calcite-segmented-control-item value="predominant" checked>Other Languages</calcite-segmented-control-item>
+          <calcite-segmented-control-item value="composition" checked>Official Languages</calcite-segmented-control-item>
+          <calcite-segmented-control-item value="predominant">Other Languages</calcite-segmented-control-item>
         </calcite-segmented-control>
+        <hr class="info-divider" />
       </div>
-
+      
       <div class="panel-section">
         <!-- Nothing clicked yet -->
         <calcite-notice id="info-empty" open width="full">
@@ -37,7 +42,6 @@
         <!-- Clicked geography, Most common other language view -->
         <div id="info-predominant" hidden>
           <h2 id="info-predominant-title" class="info-title"></h2>
-          <hr class="info-divider" />
           <!-- Filled by app.js: non-official speakers and the predominant language -->
           <div id="info-predominant-prose"></div>
           <hr class="info-divider" />
@@ -53,7 +57,6 @@
         <!-- Clicked geography, English / French / Other view -->
         <div id="info-composition" hidden>
           <h2 id="info-composition-title" class="info-title"></h2>
-          <hr class="info-divider" />
           <!-- Filled by app.js: English / French / non-official speakers -->
           <div id="info-composition-prose"></div>
           <hr class="info-divider" />
