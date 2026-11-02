@@ -1,6 +1,35 @@
 html, body { margin: 0; height: 100%; }
 arcgis-map { display: block; height: 100%; }
 
+/* Left column: fixed width, wide enough for the view toggle on one line */
+calcite-shell-panel {
+  --calcite-shell-panel-width: 360px;
+  --calcite-shell-panel-min-width: 360px;
+  --calcite-shell-panel-max-width: 360px;
+}
+.panel-section { padding: var(--calcite-spacing-md, 12px); }
+.panel-section + .panel-section { padding-block-start: 0; }
+.info-title {
+  margin: 0 0 var(--calcite-spacing-sm, 8px);
+  font-size: var(--calcite-font-size-1, 16px);
+}
+.info-divider {
+  border: none;
+  border-block-start: 1px solid var(--calcite-color-border-3, #dfdfdf);
+  margin: var(--calcite-spacing-md, 12px) 0;
+}
+.predominant-language,
+.category-word { font-weight: var(--calcite-font-weight-semibold, 600); }
+.composition-legend {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.composition-legend text {
+  font-size: 12px;
+  font-weight: 600;
+}
+
 /* Invisible 1px element that follows the cursor; the tooltip anchors to it */
 #tooltip-anchor {
   position: fixed;
@@ -11,8 +40,9 @@ arcgis-map { display: block; height: 100%; }
 /* Keep [hidden] working on elements styled with display: flex */
 [hidden] { display: none !important; }
 
-/* Fixed width so the tooltip doesn't resize with its contents */
-.tooltip-body { width: 240px; }
+/* The tooltip sizes to its contents: a long geography name widens it rather than wrapping */
+calcite-tooltip { --calcite-tooltip-max-size-x: none; }
+.tooltip-title { white-space: nowrap; }
 
 .tooltip-content {
   display: flex;
@@ -24,6 +54,13 @@ arcgis-map { display: block; height: 100%; }
   flex-direction: column;
 }
 
+/* Most common other language tooltip: geography name over the swatch row */
+.tooltip-predominant {
+  display: flex;
+  flex-direction: column;
+  gap: var(--calcite-spacing-sm, 8px);
+}
+
 /* English / French / Other tooltip */
 .tooltip-composition {
   display: flex;
@@ -31,6 +68,9 @@ arcgis-map { display: block; height: 100%; }
   gap: var(--calcite-spacing-sm, 8px);
 }
 .tooltip-title { font-weight: var(--calcite-font-weight-semibold, 600); }
+/* The bar and its values keep a fixed width so bars are comparable between geographies */
+.composition-bar,
+.composition-values { width: 240px; }
 .composition-bar {
   display: flex;
   height: 12px;

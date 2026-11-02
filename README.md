@@ -36,9 +36,11 @@ editor's **Save** button needs `dev_server.py` specifically.
 | `web/` | The app: `index.html`, `app.js`, `style.css`, plus the colour editor (`editor.*`) |
 | `web/colors.json` | Language colours: one per family, with optional per-language overrides |
 | `web/palette.js` | Loads and resolves `colors.json`; shared by the app and the editor |
+| `web/languages.json` | Every individual home language, for the language table in the left column |
 | `scripts/dev_server.py` | Local server; also lets the editor save `colors.json` |
 | `scripts/pivot_home_language.py` | Pivots the raw StatCan tables to one row per geography, one column per language |
 | `scripts/flatten_language_hierarchy.py` | Builds the `*_languages_hierarchy.csv` tables (one column per hierarchy depth) |
+| `scripts/export_languages_json.py` | Builds `web/languages.json` from the hierarchy table |
 | `scripts/predominant_language_fieldcalc.py` | ArcGIS Pro Field Calculator code block for `PredomLang` / `PredomCnt` |
 | `data/processed/` | Outputs of the scripts above |
 
