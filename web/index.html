@@ -15,55 +15,54 @@
 </head>
 <body>
   <calcite-shell>
-    <!-- Left column: title, view toggle, details of the clicked geography -->
-    <calcite-shell-panel slot="panel-start" display-mode="dock" width="m">
-      <calcite-panel heading="Lorem ipsum dolor sit amet">
-        <div class="panel-section">
-          <calcite-segmented-control id="view-switch" label="Map view" width="full">
-            <calcite-segmented-control-item value="predominant" checked>Most common other language</calcite-segmented-control-item>
-            <calcite-segmented-control-item value="composition">English / French / Other</calcite-segmented-control-item>
-          </calcite-segmented-control>
-        </div>
-
-        <div class="panel-section">
-          <!-- Nothing clicked yet -->
-          <calcite-notice id="info-empty" open width="full">
-            <div slot="message">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</div>
-          </calcite-notice>
-
-          <!-- Clicked geography, Most common other language view -->
-          <div id="info-predominant" hidden>
-            <h2 id="info-predominant-title" class="info-title"></h2>
-            <hr class="info-divider" />
-            <!-- Filled by app.js: non-official speakers and the predominant language -->
-            <div id="info-predominant-prose"></div>
-            <hr class="info-divider" />
-            <calcite-table id="language-table" caption="Languages spoken most often at home" striped scale="s">
-              <calcite-table-row slot="table-header">
-                <calcite-table-header heading="Language"></calcite-table-header>
-                <calcite-table-header heading="Speakers" alignment="end"></calcite-table-header>
-                <calcite-table-header heading="Share" alignment="end"></calcite-table-header>
-              </calcite-table-row>
-            </calcite-table>
-          </div>
-
-          <!-- Clicked geography, English / French / Other view -->
-          <div id="info-composition" hidden>
-            <h2 id="info-composition-title" class="info-title"></h2>
-            <hr class="info-divider" />
-            <!-- Filled by app.js: English / French / non-official speakers -->
-            <div id="info-composition-prose"></div>
-            <hr class="info-divider" />
-            <!-- Drawn by app.js: triangle of the colour mixes, with the selected geography marked -->
-            <svg id="composition-legend" class="composition-legend" viewBox="0 0 300 262" role="img"
-              aria-label="Triangle legend: how the English, French and non-official language colours mix"></svg>
-          </div>
-        </div>
-      </calcite-panel>
-    </calcite-shell-panel>
-
     <!-- Web map: "Canada Languages Interactive" -->
     <arcgis-map item-id="58b237790eba453bb35c7cd2c407bc18"></arcgis-map>
+
+    <!-- Left panel, floating over the map: title, view toggle, details of the clicked geography -->
+    <calcite-panel id="side-panel" class="side-panel">
+      <h1 slot="header-content" class="app-title">Canada's Linguistic Tapestry</h1>
+      <div class="panel-section">
+        <calcite-segmented-control id="view-switch" label="Map view" width="full">
+          <calcite-segmented-control-item value="composition">Official Languages</calcite-segmented-control-item>
+          <calcite-segmented-control-item value="predominant" checked>Other Languages</calcite-segmented-control-item>
+        </calcite-segmented-control>
+      </div>
+
+      <div class="panel-section">
+        <!-- Nothing clicked yet -->
+        <calcite-notice id="info-empty" open width="full">
+          <div slot="message">Click on an area the map for more information.</div>
+        </calcite-notice>
+
+        <!-- Clicked geography, Most common other language view -->
+        <div id="info-predominant" hidden>
+          <h2 id="info-predominant-title" class="info-title"></h2>
+          <hr class="info-divider" />
+          <!-- Filled by app.js: non-official speakers and the predominant language -->
+          <div id="info-predominant-prose"></div>
+          <hr class="info-divider" />
+          <calcite-table id="language-table" caption="Languages spoken most often at home" striped scale="s">
+            <calcite-table-row slot="table-header">
+              <calcite-table-header heading="Language"></calcite-table-header>
+              <calcite-table-header heading="Speakers" alignment="end"></calcite-table-header>
+              <calcite-table-header heading="Share" alignment="end"></calcite-table-header>
+            </calcite-table-row>
+          </calcite-table>
+        </div>
+
+        <!-- Clicked geography, English / French / Other view -->
+        <div id="info-composition" hidden>
+          <h2 id="info-composition-title" class="info-title"></h2>
+          <hr class="info-divider" />
+          <!-- Filled by app.js: English / French / non-official speakers -->
+          <div id="info-composition-prose"></div>
+          <hr class="info-divider" />
+          <!-- Drawn by app.js: triangle of the colour mixes, with the selected geography marked -->
+          <svg id="composition-legend" class="composition-legend" viewBox="0 0 300 262" role="img"
+            aria-label="Triangle legend: how the English, French and non-official language colours mix"></svg>
+        </div>
+      </div>
+    </calcite-panel>
   </calcite-shell>
 
   <div id="tooltip-anchor"></div>

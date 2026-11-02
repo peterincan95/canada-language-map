@@ -1,34 +1,160 @@
+/* ==========================================================================
+   THEME: everything you'd normally tweak is in this first section.
+   ========================================================================== */
+
+/* ---- 1. Fonts ------------------------------------------------------------
+   To try a different Google Font:
+     a. Pick fonts at https://fonts.google.com and copy the "@import" URL
+        from "Get embed code" (or edit the family= parts below).
+     b. Put the family names into --font-body / --font-heading.
+   The @import must stay the first rule in this file. */
+@import url('https://fonts.googleapis.com/css2?family=Bona+Nova:ital,wght@0,400;0,700;1,400&family=Kumbh+Sans:wght,YOPQ@100..900,300&display=swap');
+
+:root {
+  --font-body: "Kumbh Sans", sans-serif;            /* panel text, toggle, table, tooltips */
+  --font-heading: "Bona Nova", serif;      /* app title and geography names */
+  --font-weight-heading: 600;
+  --font-weight-emphasis: 600;                            /* language names in the prose */
+
+  /* ---- 2. Colours: plug hex codes in here ------------------------------ */
+  --color-panel-background: #1f1b1c;
+  --color-panel-header-background: #1f1b1c;
+  --color-title: #fdf5d4;               /* app title */
+  --color-heading: #fdf5d4;             /* geography name in the panel */
+  --color-body-text: #fdf5d4;           /* prose, table text */
+  --color-muted-text: #fff6d5;          /* table headings, secondary text */
+  --color-divider: #383032;             /* lines between sections */
+  --color-accent: #fdf5d4;              /* selected toggle, notice stripe */
+  --color-accent-text: #1f1b1c;         /* text on the selected toggle */
+  --color-table-stripe: #383032;        /* alternate table rows */
+  --color-tooltip-background: #1f1b1c;
+  --color-tooltip-text: #fdf5d4;
+  --color-legend-marker-ring: #1F1F1F;  /* ring around the selected area in the triangle */
+  --color-legend-marker-inner-ring: #FFFFFF;
+
+  /* ---- 3. Shape and size ----------------------------------------------- */
+  --panel-width: 360px;
+  --panel-inset: 10px;                  /* gap between the panel and the screen edges */
+  --panel-radius: 8px;
+  --panel-shadow: 0 4px 16px rgba(0, 0, 0, 0.16);
+  --swatch-radius: 4px;                 /* colour swatch in the tooltip */
+  --tooltip-bar-width: 240px;           /* stacked bar in the Official Languages tooltip */
+}
+
+/* ==========================================================================
+   Hand the theme to Calcite and the ArcGIS map widgets
+   ========================================================================== */
+
+:root {
+  --calcite-font-family: var(--font-body);
+  --calcite-color-brand: var(--color-accent);
+  --calcite-color-brand-hover: var(--color-accent);
+  --calcite-color-brand-press: var(--color-accent);
+  --calcite-color-text-inverse: var(--color-accent-text);
+}
+
+calcite-tooltip {
+  --calcite-tooltip-background-color: var(--color-tooltip-background);
+  --calcite-tooltip-text-color: var(--color-tooltip-text);
+  --calcite-tooltip-border-color: transparent;   /* no outline around the tooltip */
+  /* Sizes to its contents: a long geography name widens it rather than wrapping */
+  --calcite-tooltip-max-size-x: none;
+}
+
+/* ==========================================================================
+   Layout
+   ========================================================================== */
+
 html, body { margin: 0; height: 100%; }
 arcgis-map { display: block; height: 100%; }
 
-/* Left column: fixed width, wide enough for the view toggle on one line */
-calcite-shell-panel {
-  --calcite-shell-panel-width: 360px;
-  --calcite-shell-panel-min-width: 360px;
-  --calcite-shell-panel-max-width: 360px;
+/* Keep [hidden] working on elements styled with display: flex */
+[hidden] { display: none !important; }
+
+/* Left panel, floating over the map */
+.side-panel {
+  position: absolute;
+  inset-block-start: var(--panel-inset);
+  inset-inline-start: var(--panel-inset);
+  width: var(--panel-width);
+  /* Explicit height: calcite-panel otherwise forces 100% and ignores a bottom inset */
+  height: calc(100% - 2 * var(--panel-inset));
+  border-radius: var(--panel-radius);
+  overflow: hidden;
+  box-shadow: var(--panel-shadow);
+  z-index: 1;
+  /* Calcite draws the panel and its header with these */
+  --calcite-panel-background-color: var(--color-panel-background);
+  --calcite-color-background: var(--color-panel-background);
+  --calcite-color-foreground-1: var(--color-panel-background);
+  --calcite-color-foreground-2: var(--color-table-stripe);
+  --calcite-color-text-1: var(--color-body-text);
+  --calcite-color-text-2: var(--color-body-text);
+  --calcite-color-text-3: var(--color-muted-text);
+  --calcite-color-border-3: var(--color-divider);
+  --calcite-panel-header-background-color: var(--color-panel-header-background);
 }
+
 .panel-section { padding: var(--calcite-spacing-md, 12px); }
 .panel-section + .panel-section { padding-block-start: 0; }
+
+/* ==========================================================================
+   Panel contents
+   ========================================================================== */
+
+.app-title {
+  margin: 0;
+  padding: var(--calcite-spacing-md, 12px);
+  font-family: var(--font-heading);
+  font-weight: var(--font-weight-heading);
+  font-size: 1.25rem;
+  color: var(--color-title);
+}
+
 .info-title {
   margin: 0 0 var(--calcite-spacing-sm, 8px);
-  font-size: var(--calcite-font-size-1, 16px);
+  font-family: var(--font-heading);
+  font-weight: var(--font-weight-heading);
+  font-size: 1rem;
+  color: var(--color-heading);
 }
+
+#info-predominant-prose,
+#info-composition-prose { color: var(--color-body-text); }
+
 .info-divider {
   border: none;
-  border-block-start: 1px solid var(--calcite-color-border-3, #dfdfdf);
+  border-block-start: 1px solid var(--color-divider);
   margin: var(--calcite-spacing-md, 12px) 0;
 }
+
 .predominant-language,
-.category-word { font-weight: var(--calcite-font-weight-semibold, 600); }
+.category-word { font-weight: var(--font-weight-emphasis); }
+
+/* Triangle legend (Official Languages view) */
 .composition-legend {
   display: block;
   width: 100%;
   height: auto;
 }
 .composition-legend text {
+  font-family: var(--font-body);
   font-size: 12px;
-  font-weight: 600;
+  font-weight: var(--font-weight-emphasis);
 }
+.legend-marker-ring {
+  fill: none;
+  stroke: var(--color-legend-marker-ring);
+  stroke-width: 1.5;
+}
+.legend-marker {
+  stroke: var(--color-legend-marker-inner-ring);
+  stroke-width: 2;
+}
+
+/* ==========================================================================
+   Hover tooltip
+   ========================================================================== */
 
 /* Invisible 1px element that follows the cursor; the tooltip anchors to it */
 #tooltip-anchor {
@@ -37,13 +163,19 @@ calcite-shell-panel {
   height: 1px;
   pointer-events: none;
 }
-/* Keep [hidden] working on elements styled with display: flex */
-[hidden] { display: none !important; }
 
-/* The tooltip sizes to its contents: a long geography name widens it rather than wrapping */
-calcite-tooltip { --calcite-tooltip-max-size-x: none; }
-.tooltip-title { white-space: nowrap; }
+.tooltip-title {
+  white-space: nowrap;
+  font-family: var(--font-heading);
+  font-weight: var(--font-weight-heading);
+}
 
+/* Other Languages tooltip: geography name over the swatch row */
+.tooltip-predominant {
+  display: flex;
+  flex-direction: column;
+  gap: var(--calcite-spacing-sm, 8px);
+}
 .tooltip-content {
   display: flex;
   align-items: center;
@@ -53,24 +185,20 @@ calcite-tooltip { --calcite-tooltip-max-size-x: none; }
   display: flex;
   flex-direction: column;
 }
-
-/* Most common other language tooltip: geography name over the swatch row */
-.tooltip-predominant {
-  display: flex;
-  flex-direction: column;
-  gap: var(--calcite-spacing-sm, 8px);
+#tooltip-swatch {
+  border-radius: var(--swatch-radius);
+  overflow: hidden;
 }
 
-/* English / French / Other tooltip */
+/* Official Languages tooltip */
 .tooltip-composition {
   display: flex;
   flex-direction: column;
   gap: var(--calcite-spacing-sm, 8px);
 }
-.tooltip-title { font-weight: var(--calcite-font-weight-semibold, 600); }
 /* The bar and its values keep a fixed width so bars are comparable between geographies */
 .composition-bar,
-.composition-values { width: 240px; }
+.composition-values { width: var(--tooltip-bar-width); }
 .composition-bar {
   display: flex;
   height: 12px;
