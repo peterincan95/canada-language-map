@@ -16,6 +16,12 @@ const tableShareFormat = new Intl.NumberFormat(undefined, {
   minimumFractionDigits: 2,
   maximumFractionDigits: 2,
 });
+// Shares that would round to 0.00% show as "<0.01%" (every row has at least one speaker)
+const SMALLEST_TABLE_SHARE = 0.0001;
+const tableShare = (share) =>
+  share < SMALLEST_TABLE_SHARE / 2
+    ? `<${tableShareFormat.format(SMALLEST_TABLE_SHARE)}`
+    : tableShareFormat.format(share);
 // 1185 -> "1,185"
 const countFormat = new Intl.NumberFormat();
 
@@ -487,7 +493,7 @@ function renderPredominantInfo({ layer, attributes }) {
       row.append(
         tableCell(name),
         tableCell(countFormat.format(count), "end"),
-        tableCell(total ? tableShareFormat.format(count / total) : "", "end"),
+        tableCell(total ? tableShare(count / total) : "", "end"),
       );
       return row;
     });
