@@ -197,8 +197,9 @@ const geoName = document.getElementById("tooltip-geo");
 const bar = document.getElementById("composition-bar");
 const barValues = document.getElementById("composition-values");
 
-// Geography name fields, by layer; the composition tooltip shows whichever a feature has
-const NAME_FIELDS = ["PRNAME", "CDNAME", "CTNAME", "CMANAME"];
+// Geography name fields, by layer; tooltips and details show the first one a feature has
+// (PRENAME before PRNAME: PRNAME is bilingual for some provinces, e.g. "Quebec / Québec")
+const NAME_FIELDS = ["PRENAME", "PRNAME", "CDNAME", "CTNAME", "CMANAME"];
 
 // Credit shown in the map's attribution line for every data layer
 const DATA_CREDIT = "Stats Canada, 2021 Canadian Census";
@@ -206,11 +207,16 @@ const DATA_CREDIT = "Stats Canada, 2021 Canadian Census";
 // Web map layers that only belong in the predominant view (TractOutline also carries the tract labels)
 const PREDOMINANT_ONLY_LAYERS = ["TractOutline"];
 
+// Web map layers that are only there for cartography: they keep their own
+// styling and never show tooltips or respond to clicks, even though they carry
+// the language fields
+const CARTOGRAPHIC_LAYERS = ["Metro Labels", "Metro Boundary Lines"];
+
 // Feature layers in the web map that carry both tooltip fields
 const hoverLayers = [];
 
 async function registerLayer(layer) {
-  if (layer.type !== "feature") return;
+  if (layer.type !== "feature" || CARTOGRAPHIC_LAYERS.includes(layer.title)) return;
   await layer.load();
   const names = layer.fields.map((f) => f.name);
   if (!names.includes(LANG_FIELD) || !names.includes(HEX_FIELD)) return;
@@ -219,7 +225,21 @@ async function registerLayer(layer) {
   layer.outFields = [...new Set([...(layer.outFields ?? []), ...wanted.filter((f) => names.includes(f))])];
   layer.copyright = DATA_CREDIT;
   hoverLayers.push(layer);
-  applyColors(layer);
+}
+
+// A geography layer with no styling of its own in the web map (e.g. a newly
+// added layer drawing with its service's default symbol) borrows the styling
+// of one that has the Arcade colour override: same outline, fill and
+// visual variables, so it follows both views like the others
+function adoptTemplateStyling() {
+  const isPolygon = (layer) => layer.geometryType === "polygon";
+  const template = hoverLayers.find((layer) => isPolygon(layer) && hasColorOverride(layer.renderer?.symbol));
+  if (!template) return;
+  for (const layer of hoverLayers) {
+    if (isPolygon(layer) && !hasColorOverride(layer.renderer?.symbol)) {
+      baseRenderers.set(layer, template.renderer.clone());
+    }
+  }
 }
 
 // The web map's own renderer for each layer; colours are always rebuilt from it
@@ -664,6 +684,8 @@ async function init() {
   const view = mapEl.view;
   padViewForPanel(view);
   await Promise.all(view.map.allLayers.toArray().map(registerLayer));
+  adoptTemplateStyling();
+  hoverLayers.forEach(applyColors);
   applyLayerVisibility();
 
   // Ignore hit test results that come back after a newer pointer move
