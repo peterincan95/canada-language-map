@@ -10,6 +10,15 @@ const pctFormat = new Intl.NumberFormat(undefined, {
   minimumFractionDigits: 1,
   maximumFractionDigits: 1,
 });
+// 1185 -> "1,185"
+const countFormat = new Intl.NumberFormat();
+
+// Every individual home language, in StatCan's order (from scripts/export_languages_json.py)
+const LANGUAGES = await fetch("languages.json", { cache: "no-cache" }).then((r) => r.json());
+
+// Languages whose layer field alias doesn't match the language name
+// (StatCan's name has no final full stop, and the ArcGIS import named the field "e")
+const LANGUAGE_FIELD_OVERRIDES = { "Austro-Asiatic languages, n.i.e": "e" };
 
 // colors.json is the one place to change map and tooltip colours
 let palette = await loadPalette();
@@ -81,6 +90,41 @@ function hexToOklab(hex) {
   ];
 }
 
+// [r, g, b] (any numbers) -> "#RRGGBB", rounded and clamped to 0-255
+const rgbToHex = (rgb) =>
+  "#" +
+  rgb
+    .map((c) => Math.min(Math.max(Math.round(c), 0), 255).toString(16).padStart(2, "0"))
+    .join("")
+    .toUpperCase();
+
+// [L, a, b] in OKLab -> "#RRGGBB" (inverse of hexToOklab)
+function oklabToHex([L, a, b]) {
+  const l = (L + 0.3963377774 * a + 0.2158037573 * b) ** 3;
+  const m = (L - 0.1055613458 * a - 0.0638541728 * b) ** 3;
+  const s = (L - 0.0894841775 * a - 1.291485548 * b) ** 3;
+  const linear = [
+    4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
+    -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
+    -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s,
+  ];
+  return rgbToHex(
+    linear.map((c) => {
+      const v = Math.min(Math.max(c, 0), 1);
+      return 255 * (v <= 0.0031308 ? 12.92 * v : 1.055 * v ** (1 / 2.4) - 0.055);
+    }),
+  );
+}
+
+// Colour for a set of category shares (summing to 1), blended exactly as the
+// map's Arcade does it; used for the triangle legend
+function blendComposition(shares) {
+  const toSpace = BLEND_SPACE === "oklab" ? hexToOklab : hexToRgb;
+  const values = CATEGORIES.map(({ key }) => toSpace(palette.composition[key]));
+  const mixed = [0, 1, 2].map((i) => shares.reduce((sum, share, j) => sum + share * values[j][i], 0));
+  return BLEND_SPACE === "oklab" ? oklabToHex(mixed) : rgbToHex(mixed);
+}
+
 // Arcade for the composition view: compute each category's share as in
 // compositionShares, then blend the category colours by share in BLEND_SPACE.
 // The category colours are constants, so their RGB/OKLab values are worked out
@@ -140,6 +184,7 @@ const swatch = document.getElementById("tooltip-swatch");
 const label = document.getElementById("tooltip-label");
 const pct = document.getElementById("tooltip-pct");
 const predominantContent = document.getElementById("tooltip-predominant");
+const predominantGeoName = document.getElementById("tooltip-predominant-geo");
 const compositionContent = document.getElementById("tooltip-composition");
 const geoName = document.getElementById("tooltip-geo");
 const bar = document.getElementById("composition-bar");
@@ -295,6 +340,7 @@ new BroadcastChannel(PALETTE_CHANNEL).onmessage = ({ data }) => {
   palette = data;
   colors = resolvePalette(data);
   hoverLayers.forEach(applyColors);
+  showInfo();
 };
 
 document.getElementById("view-switch").addEventListener("calciteSegmentedControlChange", (event) => {
@@ -304,7 +350,223 @@ document.getElementById("view-switch").addEventListener("calciteSegmentedControl
     .filter((layer) => PREDOMINANT_ONLY_LAYERS.includes(layer.title))
     .forEach((layer) => (layer.visible = currentView === "predominant"));
   hideTooltip();
+  showInfo();
 });
+
+// ---- Left column: details of the clicked geography ---------------------------
+
+const infoEmpty = document.getElementById("info-empty");
+const infoPredominant = document.getElementById("info-predominant");
+const infoComposition = document.getElementById("info-composition");
+const compositionTitle = document.getElementById("info-composition-title");
+const compositionProse = document.getElementById("info-composition-prose");
+const legend = document.getElementById("composition-legend");
+const predominantTitle = document.getElementById("info-predominant-title");
+const predominantProse = document.getElementById("info-predominant-prose");
+const languageTable = document.getElementById("language-table");
+
+const TOTAL_FIELD = "Total___Language_spoken_most_often_at_home";
+
+// Left out of the language table, which is about non-official languages
+const OFFICIAL_LANGUAGES = ["English", "French"];
+
+// The geography the user last clicked, as { layer, attributes } with every field, or null
+let selected = null;
+
+// Show the info for the current view, or the placeholder when nothing is selected
+function showInfo() {
+  infoEmpty.hidden = !!selected;
+  infoPredominant.hidden = !selected || currentView !== "predominant";
+  infoComposition.hidden = !selected || currentView !== "composition";
+  if (selected && currentView === "predominant") renderPredominantInfo(selected);
+  if (selected && currentView === "composition") renderCompositionInfo(selected);
+}
+
+// Language name -> field name on a layer, found through the field aliases
+const languageFieldsByLayer = new Map();
+function languageFields(layer) {
+  if (!languageFieldsByLayer.has(layer)) {
+    const byAlias = new Map(layer.fields.map((f) => [f.alias, f.name]));
+    const fields = new Map();
+    for (const language of LANGUAGES) {
+      const field = LANGUAGE_FIELD_OVERRIDES[language] ?? byAlias.get(language);
+      if (field) fields.set(language, field);
+    }
+    languageFieldsByLayer.set(layer, fields);
+  }
+  return languageFieldsByLayer.get(layer);
+}
+
+function paragraph(...content) {
+  const p = document.createElement("p");
+  p.append(...content);
+  return p;
+}
+
+function tableCell(text, alignment = "start") {
+  const cell = document.createElement("calcite-table-cell");
+  cell.alignment = alignment;
+  cell.textContent = text;
+  return cell;
+}
+
+// Most common other language view: name, prose about non-official languages,
+// and a table of the non-official languages spoken in the area, most speakers first
+function renderPredominantInfo({ layer, attributes }) {
+  predominantTitle.textContent = geographyName(attributes);
+
+  const total = attributes[TOTAL_FIELD];
+  const nonOfficial = attributes.Non_official_languages;
+  const language = attributes[LANG_FIELD];
+  const share = attributes[PCT_FIELD];
+  const prose = [];
+  if (!total) {
+    prose.push(paragraph("No data is available for this area."));
+  } else {
+    prose.push(
+      paragraph(
+        `About ${countFormat.format(nonOfficial ?? 0)} people in this area speak a language other than English or French at home.`,
+      ),
+    );
+    if (language) {
+      const name = document.createElement("span");
+      name.className = "predominant-language";
+      name.style.color = colorFor(attributes) ?? "";
+      name.textContent = language;
+      const shareText = typeof share === "number" ? pctFormat.format(share) : "an unknown share";
+      prose.push(
+        paragraph(
+          "The predominant non-official language spoken in this area is ",
+          name,
+          `, spoken at home by about ${shareText} of residents.`,
+        ),
+      );
+    }
+  }
+  predominantProse.replaceChildren(...prose);
+
+  const rows = [...languageFields(layer)]
+    .filter(([name]) => !OFFICIAL_LANGUAGES.includes(name))
+    .map(([name, field]) => [name, attributes[field] ?? 0])
+    .filter(([, count]) => count > 0)
+    .sort((a, b) => b[1] - a[1])
+    .map(([name, count]) => {
+      const row = document.createElement("calcite-table-row");
+      row.append(
+        tableCell(name),
+        tableCell(countFormat.format(count), "end"),
+        tableCell(total ? pctFormat.format(count / total) : "", "end"),
+      );
+      return row;
+    });
+  languageTable.querySelectorAll("calcite-table-row:not([slot])").forEach((row) => row.remove());
+  languageTable.append(...rows);
+  languageTable.hidden = !rows.length;
+}
+
+// A category name in its composition colour, e.g. "English" in red
+function categoryWord(key, text) {
+  const word = document.createElement("span");
+  word.className = "category-word";
+  word.style.color = palette.composition[key];
+  word.textContent = text;
+  return word;
+}
+
+// English / French / Other view: name, colour-coded counts, and the triangle legend
+function renderCompositionInfo({ attributes }) {
+  compositionTitle.textContent = geographyName(attributes);
+
+  const shares = compositionShares(attributes);
+  if (!shares) {
+    compositionProse.replaceChildren(paragraph("No data is available for this area."));
+  } else {
+    const count = (field) => countFormat.format(attributes[field] ?? 0);
+    compositionProse.replaceChildren(
+      paragraph(
+        `${count("English")} people in this area speak `,
+        categoryWord("English", "English"),
+        ` at home, ${count("French")} speak `,
+        categoryWord("French", "French"),
+        `, and ${count("Non_official_languages")} speak a `,
+        categoryWord("Non-official languages", "Non-Official Language"),
+        ".",
+      ),
+    );
+  }
+  drawLegend(shares);
+}
+
+// ---- Triangle legend ---------------------------------------------------------
+// An equilateral triangle with one category at each corner (English bottom left,
+// French bottom right, non-official top). Every point inside is a mix of the
+// three; it's filled with small triangles coloured by the same blend as the map,
+// and the selected geography is marked where its shares put it.
+
+const SVG_NS = "http://www.w3.org/2000/svg";
+const LEGEND_STEPS = 20; // small triangles per side
+const LEGEND_SIDE = 240;
+const LEGEND_HEIGHT = (LEGEND_SIDE * Math.sqrt(3)) / 2;
+// Corner positions in the SVG's 300 x 262 viewBox, in CATEGORIES order
+const LEGEND_CORNERS = [
+  [30, 22 + LEGEND_HEIGHT], // English
+  [270, 22 + LEGEND_HEIGHT], // French
+  [150, 22], // Non-official languages
+];
+
+// Shares [English, French, Other] -> point in the triangle
+function legendPoint(shares) {
+  return [0, 1].map((axis) => shares.reduce((sum, share, i) => sum + share * LEGEND_CORNERS[i][axis], 0));
+}
+
+function svgElement(tag, attributes) {
+  const element = document.createElementNS(SVG_NS, tag);
+  for (const [name, value] of Object.entries(attributes)) element.setAttribute(name, value);
+  return element;
+}
+
+function drawLegend(shares) {
+  const n = LEGEND_STEPS;
+  const parts = [];
+  // Grid point i steps from the top corner towards the base, j steps along that row;
+  // its shares are English (i - j) / n, French j / n, Other (n - i) / n
+  const shareAt = (i, j) => [(i - j) / n, j / n, (n - i) / n];
+  const cell = (points) => {
+    const centre = [0, 1, 2].map((c) => points.reduce((sum, p) => sum + p[c], 0) / 3);
+    const color = blendComposition(centre);
+    const coordinates = points.map((p) => legendPoint(p).map((v) => v.toFixed(2)).join(",")).join(" ");
+    // Stroke in the same colour hides hairline gaps between neighbouring cells
+    parts.push(svgElement("polygon", { points: coordinates, fill: color, stroke: color, "stroke-width": 0.6 }));
+  };
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j <= i; j++) {
+      cell([shareAt(i, j), shareAt(i + 1, j), shareAt(i + 1, j + 1)]); // pointing up
+      if (j < i) cell([shareAt(i, j), shareAt(i, j + 1), shareAt(i + 1, j + 1)]); // pointing down
+    }
+  }
+
+  // Corner labels in their category colours
+  const labels = [
+    { text: "English", x: 30, y: 22 + LEGEND_HEIGHT + 18, anchor: "start" },
+    { text: "French", x: 270, y: 22 + LEGEND_HEIGHT + 18, anchor: "end" },
+    { text: "Other", x: 150, y: 14, anchor: "middle" },
+  ];
+  labels.forEach(({ text, x, y, anchor }, i) => {
+    const label = svgElement("text", { x, y, "text-anchor": anchor, fill: palette.composition[CATEGORIES[i].key] });
+    label.textContent = text;
+    parts.push(label);
+  });
+
+  // The selected geography: its own blend colour, ringed so it stands out
+  if (shares) {
+    const [x, y] = legendPoint(shares);
+    parts.push(svgElement("circle", { cx: x, cy: y, r: 7, fill: "none", stroke: "#1F1F1F", "stroke-width": 1.5 }));
+    parts.push(
+      svgElement("circle", { cx: x, cy: y, r: 5, fill: blendComposition(shares), stroke: "#FFFFFF", "stroke-width": 2 }),
+    );
+  }
+  legend.replaceChildren(...parts);
+}
 
 function colorFor(attributes) {
   const hex = String(attributes[HEX_FIELD] ?? "").trim();
@@ -316,6 +578,7 @@ function hideTooltip() {
 }
 
 function fillPredominantTooltip(attributes) {
+  predominantGeoName.textContent = geographyName(attributes);
   const color = colorFor(attributes);
   swatch.hidden = !color;
   if (color) swatch.color = color;
@@ -325,7 +588,6 @@ function fillPredominantTooltip(attributes) {
   if (!pct.hidden) pct.textContent = pctFormat.format(share);
 }
 
-// Geography name, a stacked bar of the English / French / Other split, and the shares beneath it
 // Tracts are only numbered, so they're shown with their metro area: "Toronto (0286.00)"
 function geographyName(attributes) {
   const { CTNAME: tract, CMANAME: metro } = attributes;
@@ -334,6 +596,7 @@ function geographyName(attributes) {
   return nameField ? attributes[nameField] : "";
 }
 
+// Geography name, a stacked bar of the English / French / Other split, and the shares beneath it
 function fillCompositionTooltip(attributes) {
   geoName.textContent = geographyName(attributes);
   const shares = compositionShares(attributes);
@@ -391,6 +654,29 @@ async function init() {
   view.on("pointer-leave", () => {
     latestMove++;
     hideTooltip();
+  });
+
+  // Clicking a geography selects it; clicking anywhere else clears the selection.
+  // The left column replaces the web map's own pop-ups, so those are switched off.
+  view.popupEnabled = false;
+  let latestClick = 0;
+  view.on("click", async (event) => {
+    const click = ++latestClick;
+    const { results } = await view.hitTest(event, { include: hoverLayers });
+    const graphic = results.find((r) => r.type === "graphic")?.graphic;
+    let clicked = null;
+    if (graphic) {
+      // hitTest only carries the tooltip fields; the details need every language count
+      const { features } = await graphic.layer.queryFeatures({
+        objectIds: [graphic.getObjectId()],
+        outFields: ["*"],
+        returnGeometry: false,
+      });
+      if (features.length) clicked = { layer: graphic.layer, attributes: features[0].attributes };
+    }
+    if (click !== latestClick) return; // a newer click has taken over
+    selected = clicked;
+    showInfo();
   });
 }
 
