@@ -22,8 +22,11 @@ the file layout and how to rebuild the data; this file covers how to work on it.
 - ArcGIS Maps SDK for JavaScript 4.34 (`<arcgis-map>` component) and Calcite
   3.3.2, both from the js.arcgis.com CDN. Keep the two versions paired.
 - The web map lives in ArcGIS Online (item `58b237790eba453bb35c7cd2c407bc18`,
-  public). Its layers (TractSimplified, CensusDivisionsSimplified, MetroPoints)
-  carry `PredomLang`, `Hex` and `PredomPct`. Layer data and web map styling are
+  public), with a Lambert conformal conic copy (`07a9009f429d447796945ac244603179`).
+  The projection toggle's item values in `index.html` hold the IDs; switching
+  sets `itemId` on `<arcgis-map>`, and `setUpMap()` in `app.js` re-runs the layer
+  setup for each map loaded (the view itself is kept). Both maps' layers
+  (TractSimplified, CensusDivisionsSimplified, CanadaLanguageProvinces) carry `PredomLang`, `Hex` and `PredomPct`. Layer data and web map styling are
   changed in ArcGIS Online/Pro by the user, not from this repo.
 - `app.js` picks up every feature layer that has `PredomLang` and `Hex`; nothing
   is keyed to layer names. For each it:
