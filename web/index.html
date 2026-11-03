@@ -16,7 +16,28 @@
 <body>
   <calcite-shell>
     <!-- Web map: "Canada Languages Interactive" -->
-    <arcgis-map item-id="58b237790eba453bb35c7cd2c407bc18"></arcgis-map>
+    <arcgis-map item-id="58b237790eba453bb35c7cd2c407bc18">
+      <!-- Projection switch, bottom right of the map: each item's value is a web map item ID.
+           The checked item must match item-id above. -->
+      <calcite-segmented-control id="projection-switch" slot="bottom-right" label="Map projection" scale="s">
+        <calcite-segmented-control-item value="58b237790eba453bb35c7cd2c407bc18" checked
+          title="Web Mercator" aria-label="Web Mercator projection">
+          <!-- Rectangular grid, parallels spreading apart towards the poles -->
+          <svg class="projection-symbol" viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="3" y="4" width="18" height="16" rx="1" />
+            <path d="M9 4v16M15 4v16M3 12h18M3 8.5h18M3 15.5h18" />
+          </svg>
+        </calcite-segmented-control-item>
+        <calcite-segmented-control-item value="07a9009f429d447796945ac244603179"
+          title="Lambert conformal conic" aria-label="Lambert conformal conic projection">
+          <!-- Fan: meridians converging northwards, parallels as concentric arcs -->
+          <svg class="projection-symbol" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M7.06 5.22L2.73 18.53A30 30 0 0 0 21.27 18.53L16.94 5.22A16 16 0 0 1 7.06 5.22Z" />
+            <path d="M4.9 11.87A23 23 0 0 0 19.1 11.87M12 6v14M9.5 5.8L7.3 19.6M14.5 5.8L16.7 19.6" />
+          </svg>
+        </calcite-segmented-control-item>
+      </calcite-segmented-control>
+    </arcgis-map>
 
     <!-- Left panel, floating over the map: title, view toggle, details of the clicked geography -->
     <calcite-panel id="side-panel" class="side-panel">
