@@ -221,16 +221,17 @@ const CARTOGRAPHIC_LAYERS = ["Metro Labels", "Metro Boundary Lines"];
 // Feature layers in the web map that carry both tooltip fields
 const hoverLayers = [];
 
-async function registerLayer(layer) {
-  if (layer.type !== "feature" || CARTOGRAPHIC_LAYERS.includes(layer.title)) return;
+// Returns the layer if it is one, otherwise null
+async function prepareLayer(layer) {
+  if (layer.type !== "feature" || CARTOGRAPHIC_LAYERS.includes(layer.title)) return null;
   await layer.load();
   const names = layer.fields.map((f) => f.name);
-  if (!names.includes(LANG_FIELD) || !names.includes(HEX_FIELD)) return;
+  if (!names.includes(LANG_FIELD) || !names.includes(HEX_FIELD)) return null;
   // hitTest only returns attributes the layer has fetched
   const wanted = [LANG_FIELD, HEX_FIELD, PCT_FIELD, ...NAME_FIELDS, ...Object.values(COUNT_FIELDS)];
   layer.outFields = [...new Set([...(layer.outFields ?? []), ...wanted.filter((f) => names.includes(f))])];
   layer.copyright = DATA_CREDIT;
-  hoverLayers.push(layer);
+  return layer;
 }
 
 // A geography layer with no styling of its own in the web map (e.g. a newly
@@ -675,25 +676,21 @@ function showTooltip(view, screenPoint, attributes) {
 
 // The panel floats over the map, so pad the view by the panel's width (plus
 // the same gap on its far side): the map's centre, zoom-to and widgets then
-// work within the visible part of the map rather than under the panel
-function padViewForPanel(view) {
-  const panel = document.getElementById("side-panel");
-  const update = () => {
-    const rect = panel.getBoundingClientRect();
-    view.padding = { ...view.padding, left: Math.round(rect.right + rect.left) };
-  };
-  new ResizeObserver(update).observe(panel);
-  update();
-}
-
-async function init() {
+// work within the visible part of the map rather than under the panel.
+// Loading another web map resets the padding, so setUpMap calls this too.
+const sidePanel = document.getElementById("side-panel");
+function padViewForPanel() {
   const view = mapEl.view;
-  padViewForPanel(view);
-  await Promise.all(view.map.allLayers.toArray().map(registerLayer));
-  adoptTemplateStyling();
-  hoverLayers.forEach(applyColors);
-  applyLayerVisibility();
+  if (!view) return;
+  const rect = sidePanel.getBoundingClientRect();
+  view.padding = { ...view.padding, left: Math.round(rect.right + rect.left) };
+}
+new ResizeObserver(padViewForPanel).observe(sidePanel);
 
+// ---- Map setup --------------------------------------------------------------
+
+// Pointer and click handlers, bound once per view
+function bindView(view) {
   // Ignore hit test results that come back after a newer pointer move
   let latestMove = 0;
   view.on("pointer-move", async (event) => {
@@ -734,5 +731,85 @@ async function init() {
   });
 }
 
+let boundView = null;
+let setUpFor = null;
+// Bumped for every web map loaded, so setup for a map that has since been
+// switched away from stops before touching the layers
+let mapGeneration = 0;
+
+// Set up the web map now in the view: find its language layers and colour them
+async function setUpMap() {
+  const view = mapEl.view;
+  if (view.map === setUpFor) return; // already set up (the ready event also fires at startup)
+  setUpFor = view.map;
+  if (view !== boundView) {
+    bindView(view);
+    boundView = view;
+  }
+  padViewForPanel();
+  restoreViewpoint(view);
+  const generation = ++mapGeneration;
+  hoverLayers.length = 0;
+  hideTooltip();
+  const layers = await Promise.all(view.map.allLayers.toArray().map(prepareLayer));
+  if (generation !== mapGeneration) return;
+  hoverLayers.push(...layers.filter(Boolean));
+  adoptTemplateStyling();
+  hoverLayers.forEach(applyColors);
+  applyLayerVisibility();
+  // The clicked geography belonged to the old map's layers: find it again in the new one
+  if (selected) selected = await reselect(selected);
+  if (generation === mapGeneration) showInfo();
+}
+
+// The same geography (by its StatCan DGUID) in the current map's layer of the same name, or null
+async function reselect({ layer, attributes }) {
+  const match = hoverLayers.find((l) => l.title === layer.title);
+  if (!match || attributes.DGUID == null) return null;
+  const { features } = await match.queryFeatures({
+    where: `DGUID = '${String(attributes.DGUID).replaceAll("'", "''")}'`,
+    outFields: ["*"],
+    returnGeometry: false,
+  });
+  return features.length ? { layer: match, attributes: features[0].attributes } : null;
+}
+
+// ---- Projection switch: swaps the web map for one in another projection -------
+
+// Where the view was before a switch, for the new map to open on
+let viewpointBeforeSwitch = null;
+
+document.getElementById("projection-switch").addEventListener("calciteSegmentedControlChange", (event) => {
+  const { center, scale } = mapEl.view;
+  viewpointBeforeSwitch = { center: center.clone(), scale };
+  mapEl.itemId = event.target.value;
+});
+
+// Show the same place at the same ground scale in the new map. Map units per
+// kilometre on the ground differ between projections (Mercator stretches
+// towards the poles), so the scale is corrected by a short east-west step
+// measured at the centre in both. (Projecting the whole extent instead fails
+// when its corners reach past the pole.)
+async function restoreViewpoint(view) {
+  const before = viewpointBeforeSwitch;
+  viewpointBeforeSwitch = null;
+  if (!before || before.center.spatialReference.equals(view.spatialReference)) return;
+  const [projectOperator, Point] = await Promise.all([
+    $arcgis.import("@arcgis/core/geometry/operators/projectOperator.js"),
+    $arcgis.import("@arcgis/core/geometry/Point.js"),
+  ]);
+  if (!projectOperator.isLoaded()) await projectOperator.load();
+  const { x: lon, y: lat } = projectOperator.execute(before.center, { wkid: 4326 });
+  const stepLength = (spatialReference) => {
+    const [a, b] = [lon, lon + 0.01].map((x) => projectOperator.execute(new Point({ x, y: lat }), spatialReference));
+    return Math.hypot(b.x - a.x, b.y - a.y);
+  };
+  view.center = projectOperator.execute(before.center, view.spatialReference);
+  view.scale = before.scale * (stepLength(view.spatialReference) / stepLength(before.center.spatialReference));
+}
+
+mapEl.addEventListener("arcgisViewReadyChange", () => {
+  if (mapEl.view?.ready) setUpMap();
+});
 await mapEl.viewOnReady();
-init();
+setUpMap();

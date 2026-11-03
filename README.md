@@ -50,8 +50,10 @@ Edit colours in the colour editor rather than by hand. A language uses its own
 colour if it has one, otherwise its family's. Edits preview live in any open app
 tab; **Save** writes `web/colors.json`.
 
-The map layers themselves live in ArcGIS Online (web map item
-`58b237790eba453bb35c7cd2c407bc18`). The app recolours them from `colors.json`
+The map layers themselves live in ArcGIS Online, in two web maps that differ
+only in projection: `58b237790eba453bb35c7cd2c407bc18` (Web Mercator) and
+`07a9009f429d447796945ac244603179` (Lambert conformal conic), switched with the
+toggle in the bottom right of the map. The app recolours them from `colors.json`
 when it loads, so the `Hex` field in the layers is only a fallback.
 
 ## Data
