@@ -234,19 +234,67 @@ async function prepareLayer(layer) {
   return layer;
 }
 
-// A geography layer with no styling of its own in the web map (e.g. a newly
-// added layer drawing with its service's default symbol) borrows the styling
-// of one that has the Arcade colour override: same outline, fill and
-// visual variables, so it follows both views like the others
-function adoptTemplateStyling() {
+// A polygon layer whose symbol has no Arcade colour override (e.g. one styled
+// in Map Viewer with a single colour) gets one added to its fill, so the fill
+// follows the data while its outline stays as set in the web map. Layers with
+// no opacity or size visual variables of their own borrow those of a layer
+// that has the override, so they fade the same way in the predominant view.
+// A layer whose symbol can't take an override (e.g. a service's default
+// unique-value renderer) borrows that layer's whole renderer instead.
+function addColorOverrides() {
   const isPolygon = (layer) => layer.geometryType === "polygon";
   const template = hoverLayers.find((layer) => isPolygon(layer) && hasColorOverride(layer.renderer?.symbol));
-  if (!template) return;
   for (const layer of hoverLayers) {
-    if (isPolygon(layer) && !hasColorOverride(layer.renderer?.symbol)) {
+    if (!isPolygon(layer) || hasColorOverride(layer.renderer?.symbol)) continue;
+    const symbol = layer.renderer?.type === "simple" ? withFillOverride(layer.renderer.symbol) : null;
+    if (symbol) {
+      const renderer = layer.renderer.clone();
+      renderer.symbol = symbol;
+      if (!renderer.visualVariables?.length && template?.renderer.visualVariables) {
+        renderer.visualVariables = template.renderer.visualVariables.map((v) => v.clone());
+      }
+      baseRenderers.set(layer, renderer);
+    } else if (template) {
       baseRenderers.set(layer, template.renderer.clone());
     }
   }
+}
+
+// A CIM copy of a polygon symbol with an Arcade colour override on its fill
+// (the expression is filled in by withColorExpression), or null if it has no
+// solid fill. A simple fill symbol is converted to CIM, keeping its outline.
+function withFillOverride(symbol) {
+  const rgba = (color) => [...color.toRgb(), Math.round(color.a * 255)];
+  let data;
+  if (symbol.type === "cim") {
+    data = symbol.clone().data;
+  } else if (symbol.type === "simple-fill" && symbol.style === "solid") {
+    const strokes = symbol.outline
+      ? [{ type: "CIMSolidStroke", enable: true, width: symbol.outline.width, color: rgba(symbol.outline.color) }]
+      : [];
+    data = {
+      type: "CIMSymbolReference",
+      symbol: {
+        type: "CIMPolygonSymbol",
+        symbolLayers: [...strokes, { type: "CIMSolidFill", enable: true, color: rgba(symbol.color) }],
+      },
+    };
+  } else {
+    return null;
+  }
+  const fill = data.symbol?.symbolLayers?.find((l) => l.type === "CIMSolidFill");
+  if (!fill) return null;
+  fill.primitiveName ??= "language-fill";
+  data.primitiveOverrides = [
+    ...(data.primitiveOverrides ?? []),
+    {
+      type: "CIMPrimitiveOverride",
+      primitiveName: fill.primitiveName,
+      propertyName: "Color",
+      valueExpressionInfo: { type: "CIMExpressionInfo", expression: "", returnType: "Default" },
+    },
+  ];
+  return { type: "cim", data };
 }
 
 // The web map's own renderer for each layer; colours are always rebuilt from it
@@ -754,7 +802,7 @@ async function setUpMap() {
   const layers = await Promise.all(view.map.allLayers.toArray().map(prepareLayer));
   if (generation !== mapGeneration) return;
   hoverLayers.push(...layers.filter(Boolean));
-  adoptTemplateStyling();
+  addColorOverrides();
   hoverLayers.forEach(applyColors);
   applyLayerVisibility();
   // The clicked geography belonged to the old map's layers: find it again in the new one
