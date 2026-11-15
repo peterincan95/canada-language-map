@@ -19,6 +19,8 @@
     <arcgis-map item-id="58b237790eba453bb35c7cd2c407bc18">
       <!-- Projection switch, bottom right of the map: each item's value is a web map item ID.
            The checked item must match item-id above. -->
+      <!-- Legend button, top right of the map (Other Languages view only); opens #legend-popover -->
+      <calcite-action id="legend-button" slot="top-right" icon="legend" text="Legend" scale="m"></calcite-action>
       <calcite-segmented-control id="projection-switch" slot="bottom-right" label="Map projection" scale="s">
         <calcite-segmented-control-item value="58b237790eba453bb35c7cd2c407bc18" checked
           title="Web Mercator" aria-label="Web Mercator projection">
@@ -88,6 +90,18 @@
       </div>
     </calcite-panel>
   </calcite-shell>
+
+  <!-- Language legend: groups, families and their colours. Filled by app.js -->
+  <calcite-popover id="legend-popover" label="Legend" placement="left-start" trigger-disabled
+    overlay-positioning="fixed" auto-close pointer-disabled offset-distance="8">
+    <div class="legend-content">
+      <h2 class="legend-title">Legend</h2>
+      <p class="legend-intro">Languages in this list are the most predominant non-official language in at least one area on the map</p>
+      <div id="language-legend" class="language-legend"></div>
+      <!-- Marks added by app.js after n.o.s. and n.i.e. language names -->
+      <p class="legend-footnote">*Not otherwise specified<br />**Not included elsewhere</p>
+    </div>
+  </calcite-popover>
 
   <div id="tooltip-anchor"></div>
   <calcite-tooltip id="hover-tooltip" reference-element="tooltip-anchor" placement="right" offset-distance="12" overlay-positioning="fixed">

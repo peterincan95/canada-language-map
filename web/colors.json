@@ -1,6 +1,7 @@
 {
   "families": {
     "Algonquian languages": "#DCAA00",
+    "Armenian": "#ED6DD6",
     "Austro-Asiatic languages": "#A246C3",
     "Austronesian languages": "#399AB8",
     "Chinese languages": "#6E8C1E",
@@ -8,7 +9,7 @@
     "Cushitic languages": "#007C8E",
     "Dravidian languages": "#2FB163",
     "Germanic languages": "#C0061B",
-    "Greek": "#E1401E",
+    "Greek": "#D4536F",
     "Indo-Aryan languages": "#74335B",
     "Inuktut (Inuit) languages": "#E17B10",
     "Iranian languages": "#445276",
@@ -16,9 +17,11 @@
     "Korean": "#227733",
     "Northern Athabaskan languages": "#DD9B05",
     "Other languages": "#D9D9D9",
+    "Salish languages": "#FFFB1C",
     "Semitic languages": "#00766D",
     "Siouan languages": "#E6D570",
-    "Slavic languages": "#D84E18"
+    "Slavic languages": "#E05D24",
+    "Tibeto-Burman languages": "#90FF36"
   },
   "languages": {
     "Afrikaans": {
@@ -37,7 +40,7 @@
       "family": "Semitic languages"
     },
     "Armenian": {
-      "family": "Other languages"
+      "family": "Armenian"
     },
     "Assyrian Neo-Aramaic": {
       "family": "Semitic languages"
@@ -188,10 +191,10 @@
       "family": "Slavic languages"
     },
     "S'gaw Karen": {
-      "family": "Other languages"
+      "family": "Tibeto-Burman languages"
     },
     "Secwepemctsin (Shuswap)": {
-      "family": "Other languages"
+      "family": "Salish languages"
     },
     "Serbian": {
       "family": "Slavic languages"
@@ -215,7 +218,7 @@
       "family": "Siouan languages"
     },
     "Straits": {
-      "family": "Other languages"
+      "family": "Salish languages"
     },
     "Swiss German": {
       "family": "Germanic languages"
@@ -233,7 +236,7 @@
       "family": "Other languages"
     },
     "Tibetan": {
-      "family": "Other languages"
+      "family": "Tibeto-Burman languages"
     },
     "Tigrigna": {
       "family": "Semitic languages"

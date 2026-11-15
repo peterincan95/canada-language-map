@@ -39,6 +39,11 @@ the file layout and how to rebuild the data; this file covers how to work on it.
     invisible element that follows the cursor).
 - `colors.json` holds `families` (name to `#RRGGBB`) and `languages` (name to
   `{ family, color? }`). `palette.js` loads and resolves it for both pages.
+- `language-groups.json` maps each colour family to its top-level group in
+  StatCan's hierarchy (e.g. Indo-European). The editor and the Other Languages
+  legend (a popover from the map's top-right button) group families by it.
+  Rerun `scripts/export_language_groups.py` after adding a family to
+  `colors.json`, or the new family shows under "Other".
 - The editor posts unsaved palettes on the `language-palette` BroadcastChannel;
   open app tabs re-render live. Save is a `PUT /colors.json`, validated by
   `dev_server.py` and written atomically.

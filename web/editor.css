@@ -6,6 +6,15 @@ html, body { margin: 0; height: 100%; }
   padding: var(--calcite-spacing-md, 12px);
 }
 
+/* Parent language group (e.g. Indo-European) above its families */
+.group-heading {
+  margin: var(--calcite-spacing-xl, 24px) 0 var(--calcite-spacing-sm, 8px);
+  font-size: var(--calcite-font-size-0, 1rem);
+  font-weight: var(--calcite-font-weight-semibold, 600);
+  color: var(--calcite-color-text-1);
+}
+.group-heading:first-child { margin-block-start: 0; }
+
 /* Clickable swatch that opens the shared colour picker */
 .swatch-button {
   display: inline-flex;
