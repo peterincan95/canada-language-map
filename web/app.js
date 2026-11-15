@@ -454,7 +454,7 @@ const languageTable = document.getElementById("language-table");
 
 const TOTAL_FIELD = "Total___Language_spoken_most_often_at_home";
 
-// Left out of the language table, which is about non-official languages
+// Shown in the language table but styled apart: the predominance map leaves them out
 const OFFICIAL_LANGUAGES = ["English", "French"];
 
 // The geography the user last clicked, as { layer, attributes } with every field, or null
@@ -498,7 +498,9 @@ function tableCell(text, alignment = "start") {
 }
 
 // Most common other language view: name, prose about non-official languages,
-// and a table of the non-official languages spoken in the area, most speakers first
+// and a table of the languages spoken in the area, most speakers first. English
+// and French are listed but styled apart (official-language class), since the
+// predominance map doesn't count them
 function renderPredominantInfo({ layer, attributes }) {
   predominantTitle.textContent = geographyName(attributes);
 
@@ -533,12 +535,12 @@ function renderPredominantInfo({ layer, attributes }) {
   predominantProse.replaceChildren(...prose);
 
   const rows = [...languageFields(layer)]
-    .filter(([name]) => !OFFICIAL_LANGUAGES.includes(name))
     .map(([name, field]) => [name, attributes[field] ?? 0])
     .filter(([, count]) => count > 0)
     .sort((a, b) => b[1] - a[1])
     .map(([name, count]) => {
       const row = document.createElement("calcite-table-row");
+      row.classList.toggle("official-language", OFFICIAL_LANGUAGES.includes(name));
       row.append(
         tableCell(name),
         tableCell(countFormat.format(count), "end"),

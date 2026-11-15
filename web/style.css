@@ -29,6 +29,7 @@
   --color-accent: #fdf5d4;              /* selected toggle, notice stripe */
   --color-accent-text: #1f1b1c;         /* text on the selected toggle */
   --color-table-stripe: #383032;        /* alternate table rows */
+  --color-official-language-text: #a89f92;  /* English and French rows in the table (italic) */
   --color-tooltip-background: #1f1b1c;
   --color-tooltip-text: #fdf5d4;
   --color-legend-marker-ring: #1F1F1F;  /* ring around the selected area in the triangle */
@@ -201,6 +202,15 @@ arcgis-map { display: block; height: 100%; }
 
 .predominant-language,
 .category-word { font-weight: var(--font-weight-emphasis); }
+
+/* English and French rows in the language table: listed, but not counted in
+   the predominance map */
+calcite-table-row.official-language {
+  --calcite-color-text-1: var(--color-official-language-text);
+  --calcite-color-text-2: var(--color-official-language-text);
+  color: var(--color-official-language-text);
+  font-style: italic;
+}
 
 /* Triangle legend (Official Languages view) */
 .composition-legend {
