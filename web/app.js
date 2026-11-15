@@ -423,6 +423,7 @@ new BroadcastChannel(PALETTE_CHANNEL).onmessage = ({ data }) => {
   colors = resolvePalette(data);
   hoverLayers.forEach(applyColors);
   showInfo();
+  renderLanguageLegend();
 };
 
 // Show or hide the layers that only belong in the predominant view
@@ -436,9 +437,105 @@ document.getElementById("view-switch").addEventListener("calciteSegmentedControl
   currentView = event.target.value;
   hoverLayers.forEach(applyColors);
   applyLayerVisibility();
+  applyLegendVisibility();
   hideTooltip();
   showInfo();
 });
+
+// ---- Language legend (Other Languages view) ------------------------------------
+
+const legendButton = document.getElementById("legend-button");
+const legendPopover = document.getElementById("legend-popover");
+const languageLegend = document.getElementById("language-legend");
+
+// Colour family -> parent language group (from scripts/export_language_groups.py)
+const LANGUAGE_GROUPS = await fetch("language-groups.json", { cache: "no-cache" })
+  .then((r) => (r.ok ? r.json() : {}))
+  .catch(() => ({}));
+// Families with no parent group of their own are listed last, under this name
+const UNGROUPED = "Other";
+// The colors.json family for languages with no family of their own: always last in its group
+const CATCH_ALL_FAMILY = "Other languages";
+
+// "Indo-European languages" -> "Indo-European"
+const shortName = (name) => name.replace(/ languages$/, "");
+const byName = (a, b) => a.localeCompare(b);
+
+// Catch-all languages ("Cree, n.o.s.", "Sign languages, n.i.e.") go last in their
+// family and are marked for the footnote in index.html
+const CATCH_ALL_MARKS = { "n.o.s.": "*", "n.i.e.": "**" };
+const catchAllMark = (name) => CATCH_ALL_MARKS[name.match(/n\.[a-z]\.[a-z]\.$/)?.[0]] ?? "";
+const byLegendOrder = (a, b) => !!catchAllMark(a) - !!catchAllMark(b) || byName(a, b);
+
+function legendElement(tag, className, text) {
+  const element = document.createElement(tag);
+  element.className = className;
+  if (text != null) element.textContent = text;
+  return element;
+}
+
+// Every language in colors.json under its family and the family's parent group:
+// groups and families with the most languages first ("Other" group and "Other
+// languages" family last), languages A to Z (catch-alls last). Each language has its own segment of the family's colour bar, so
+// per-language colours show.
+function renderLanguageLegend() {
+  const groups = new Map(); // group -> family -> [language]
+  for (const [name, { family }] of Object.entries(palette.languages)) {
+    const group = LANGUAGE_GROUPS[family] ?? UNGROUPED;
+    if (!groups.has(group)) groups.set(group, new Map());
+    const families = groups.get(group);
+    families.set(family, [...(families.get(family) ?? []), name]);
+  }
+  const size = (families) => [...families.values()].reduce((n, languages) => n + languages.length, 0);
+  const order = [...groups.keys()].sort(
+    (a, b) => (a === UNGROUPED) - (b === UNGROUPED) || size(groups.get(b)) - size(groups.get(a)) || byName(a, b),
+  );
+
+  languageLegend.replaceChildren(
+    ...order.flatMap((group, i) => {
+      const groupEl = legendElement("div", "legend-group");
+      const familiesEl = legendElement("div", "legend-families");
+      const families = groups.get(group);
+      const familyOrder = [...families.keys()].sort(
+        (a, b) =>
+          (a === CATCH_ALL_FAMILY) - (b === CATCH_ALL_FAMILY) ||
+          families.get(b).length - families.get(a).length ||
+          byName(a, b),
+      );
+      for (const family of familyOrder) {
+        const languages = groups.get(group).get(family).sort(byLegendOrder);
+        const familyEl = legendElement("div", "legend-family");
+        const familyName = legendElement("div", "legend-family-name", shortName(family));
+        familyName.style.gridRow = `span ${languages.length}`;
+        familyEl.append(familyName);
+        for (const language of languages) {
+          const segment = legendElement("span", "legend-segment");
+          segment.style.background = colors[language] ?? NO_DATA_COLOR;
+          familyEl.append(segment, legendElement("span", "legend-language", language + catchAllMark(language)));
+        }
+        familiesEl.append(familyEl);
+      }
+      groupEl.append(legendElement("div", "legend-group-name", shortName(group)), familiesEl);
+      // A line between groups, like the side panel's dividers
+      return i ? [legendElement("hr", "info-divider"), groupEl] : [groupEl];
+    }),
+  );
+}
+
+// The legend only belongs to the Other Languages view
+function applyLegendVisibility() {
+  legendButton.hidden = currentView !== "predominant";
+  if (legendButton.hidden) legendPopover.open = false;
+}
+
+// The map moves the button into its own UI, where the popover can't find it by
+// ID, so it is handed the element (once the component is defined, or the value
+// would be lost) and the button opens and closes the popover itself
+customElements.whenDefined("calcite-popover").then(() => (legendPopover.referenceElement = legendButton));
+legendButton.addEventListener("click", () => (legendPopover.open = !legendPopover.open));
+
+renderLanguageLegend();
+applyLegendVisibility();
 
 // ---- Left column: details of the clicked geography ---------------------------
 
