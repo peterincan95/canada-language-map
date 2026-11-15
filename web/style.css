@@ -29,12 +29,14 @@
   --color-accent: #fdf5d4;              /* selected toggle, notice stripe */
   --color-accent-text: #1f1b1c;         /* text on the selected toggle */
   --color-table-stripe: #383032;        /* alternate table rows */
+  --color-official-language-text: #a89f92;  /* English and French rows in the table (italic) */
   --color-tooltip-background: #1f1b1c;
   --color-tooltip-text: #fdf5d4;
   --color-legend-marker-ring: #1F1F1F;  /* ring around the selected area in the triangle */
   --color-legend-marker-inner-ring: #FFFFFF;
   --color-scrollbar-thumb: #5A4F52;     /* side panel scrollbar: the part you drag */
   --color-scrollbar-track: #1F1B1C;     /* side panel scrollbar: the channel behind it */
+  --color-legend-group-bar: #5A4F52;    /* bar beside each language group in the legend */
 
   /* ---- 3. Shape and size ----------------------------------------------- */
   --panel-width: 360px;
@@ -43,6 +45,9 @@
   --panel-shadow: 0 4px 16px rgba(0, 0, 0, 0.16);
   --swatch-radius: 4px;                 /* colour swatch in the tooltip */
   --tooltip-bar-width: 240px;           /* stacked bar in the Official Languages tooltip */
+  --legend-group-width: 120px;          /* legend: group name column */
+  --legend-family-width: 124px;         /* legend: family name column */
+  --legend-bar-width: 20px;             /* legend: family colour bar */
 }
 
 /* ==========================================================================
@@ -201,6 +206,116 @@ arcgis-map { display: block; height: 100%; }
 
 .predominant-language,
 .category-word { font-weight: var(--font-weight-emphasis); }
+
+/* English and French rows in the language table: listed, but not counted in
+   the predominance map */
+calcite-table-row.official-language {
+  --calcite-color-text-1: var(--color-official-language-text);
+  --calcite-color-text-2: var(--color-official-language-text);
+  color: var(--color-official-language-text);
+  font-style: italic;
+}
+
+/* ==========================================================================
+   Language legend (Other Languages view): button and popover
+   ========================================================================== */
+
+/* Map button, styled like the projection switch */
+#legend-button {
+  border-radius: var(--panel-radius);
+  overflow: hidden;
+  box-shadow: var(--panel-shadow);
+  --calcite-action-background-color: var(--color-panel-background);
+  --calcite-action-background-color-hover: var(--color-divider);
+  --calcite-action-background-color-press: var(--color-divider);
+  --calcite-action-text-color: var(--color-body-text);
+  --calcite-action-text-color-press: var(--color-body-text);
+}
+
+#legend-popover {
+  --calcite-popover-background-color: var(--color-panel-background);
+  --calcite-popover-border-color: transparent;
+  --calcite-popover-corner-radius: var(--panel-radius);
+  --calcite-popover-text-color: var(--color-body-text);
+}
+
+/* Title, intro, the list and the footnote, scrolling together */
+.legend-content {
+  max-height: calc(100vh - 6rem);
+  max-width: calc(100vw - 2rem);
+  overflow-y: auto;
+  padding: var(--calcite-spacing-md, 12px) var(--calcite-spacing-lg, 16px);
+  box-sizing: border-box;
+  font-family: var(--font-body);
+  color: var(--color-body-text);
+  scrollbar-color: var(--color-scrollbar-thumb) var(--color-scrollbar-track);
+}
+.legend-title {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-weight: var(--font-weight-heading);
+  font-size: 1.25rem;
+  color: var(--color-heading);
+}
+.legend-intro {
+  margin: var(--calcite-spacing-xs, 4px) 0 var(--calcite-spacing-lg, 16px);
+  max-width: 36em;
+  font-size: 0.875rem;
+}
+.legend-footnote {
+  margin: var(--calcite-spacing-lg, 16px) 0 0;
+  font-size: 0.75rem;
+  color: var(--color-muted-text);
+}
+
+/* Groups are separated by .info-divider lines (added by app.js), which bring their own margins */
+.language-legend {
+  display: flex;
+  flex-direction: column;
+}
+
+/* A group: bar down its whole height, name, then its families */
+.legend-group {
+  display: grid;
+  grid-template-columns: var(--legend-group-width) auto;
+  column-gap: var(--calcite-spacing-sm, 8px);
+  border-inline-start: 4px solid var(--color-legend-group-bar);
+  padding-inline-start: var(--calcite-spacing-sm, 8px);
+}
+.legend-group-name {
+  font-family: var(--font-heading);
+  font-weight: var(--font-weight-heading);
+  font-size: 1rem;
+  line-height: 1.2;
+}
+.legend-families {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* A family: name (right-aligned, spanning its rows), colour bar, languages */
+.legend-family {
+  display: grid;
+  grid-template-columns: var(--legend-family-width) var(--legend-bar-width) auto;
+  grid-auto-rows: minmax(20px, auto);
+  column-gap: var(--calcite-spacing-sm, 8px);
+}
+.legend-family-name {
+  grid-column: 1;
+  text-align: end;
+  font-weight: var(--font-weight-emphasis);
+  font-size: 0.875rem;
+  line-height: 1.2;
+  padding-block-start: 2px;
+}
+.legend-segment { grid-column: 2; }
+.legend-language {
+  grid-column: 3;
+  align-self: center;
+  font-size: 0.8125rem;
+  white-space: nowrap;
+}
 
 /* Triangle legend (Official Languages view) */
 .composition-legend {

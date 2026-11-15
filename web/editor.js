@@ -133,6 +133,19 @@ window.addEventListener("beforeunload", (event) => {
   if (dirty) event.preventDefault();
 });
 
-const families = Object.keys(palette.families).sort((a, b) => a.localeCompare(b));
-familiesEl.append(...families.map(familyBlock));
+// Families under their parent language group (from scripts/export_language_groups.py),
+// groups A to Z, then the families with no group of their own
+const groupOf = await fetch("language-groups.json", { cache: "no-cache" })
+  .then((r) => (r.ok ? r.json() : {}))
+  .catch(() => ({}));
+const UNGROUPED = "Other language groups";
+const byGroup = new Map();
+for (const family of Object.keys(palette.families).sort((a, b) => a.localeCompare(b))) {
+  const group = groupOf[family] ?? UNGROUPED;
+  byGroup.set(group, [...(byGroup.get(group) ?? []), family]);
+}
+const groups = [...byGroup.keys()].sort((a, b) => (a === UNGROUPED) - (b === UNGROUPED) || a.localeCompare(b));
+familiesEl.append(
+  ...groups.flatMap((group) => [el("h2", { className: "group-heading", textContent: group }), ...byGroup.get(group).map(familyBlock)]),
+);
 refreshers.forEach((refresh) => refresh());
