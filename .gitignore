@@ -14,3 +14,6 @@ __pycache__/
 Thumbs.db
 desktop.ini
 .DS_Store
+
+# Design mockups (local reference only)
+mockups/
