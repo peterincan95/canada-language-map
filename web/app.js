@@ -857,6 +857,9 @@ function bindView(view) {
   // Clicking a geography selects it; clicking anywhere else clears the selection.
   // The left column replaces the web map's own pop-ups, so those are switched off.
   view.popupEnabled = false;
+  // Hide the selection outline while its layer is out of its scale range
+  $arcgis.import("@arcgis/core/core/reactiveUtils.js").then((reactiveUtils) =>
+    reactiveUtils.watch(() => view.scale, () => showSelectionAtScale(view)));
   let latestClick = 0;
   view.on("click", async (event) => {
     const click = ++latestClick;
@@ -868,13 +871,15 @@ function bindView(view) {
       const { features } = await graphic.layer.queryFeatures({
         objectIds: [graphic.getObjectId()],
         outFields: ["*"],
-        returnGeometry: false,
+        returnGeometry: true,
+        outSpatialReference: view.spatialReference,
       });
-      if (features.length) clicked = { layer: graphic.layer, attributes: features[0].attributes };
+      if (features.length) clicked = { layer: graphic.layer, ...pick(features[0]) };
     }
     if (click !== latestClick) return; // a newer click has taken over
     selected = clicked;
     showInfo();
+    drawSelection(view);
   });
 }
 
@@ -905,20 +910,66 @@ async function setUpMap() {
   hoverLayers.forEach(applyColors);
   applyLayerVisibility();
   // The clicked geography belonged to the old map's layers: find it again in the new one
-  if (selected) selected = await reselect(selected);
-  if (generation === mapGeneration) showInfo();
+  if (selected) selected = await reselect(selected, view);
+  if (generation !== mapGeneration) return;
+  showInfo();
+  drawSelection(view);
 }
 
 // The same geography (by its StatCan DGUID) in the current map's layer of the same name, or null
-async function reselect({ layer, attributes }) {
+async function reselect({ layer, attributes }, view) {
   const match = hoverLayers.find((l) => l.title === layer.title);
   if (!match || attributes.DGUID == null) return null;
   const { features } = await match.queryFeatures({
     where: `DGUID = '${String(attributes.DGUID).replaceAll("'", "''")}'`,
     outFields: ["*"],
-    returnGeometry: false,
+    returnGeometry: true,
+    outSpatialReference: view.spatialReference, // the new map may be in another projection
   });
-  return features.length ? { layer: match, attributes: features[0].attributes } : null;
+  return features.length ? { layer: match, ...pick(features[0]) } : null;
+}
+
+// What the selection keeps of a queried feature
+function pick(feature) {
+  return { attributes: feature.attributes, geometry: feature.geometry };
+}
+
+// Outline the selected geography on the map: a light line over a darker, wider
+// one, so it shows on both light and dark fills. Colours and widths come from
+// the theme in style.css. Drawn as view graphics, above every layer.
+async function drawSelection(view) {
+  const Graphic = await $arcgis.import("@arcgis/core/Graphic.js");
+  view.graphics.removeAll();
+  if (!selected?.geometry) return;
+  const theme = getComputedStyle(document.documentElement);
+  const value = (name) => theme.getPropertyValue(name).trim();
+  const outline = (color, width) => new Graphic({
+    geometry: selected.geometry,
+    symbol: {
+      type: "simple-fill",
+      color: [0, 0, 0, 0],
+      outline: { color, width: Number(value(width)), join: "round" },
+    },
+  });
+  view.graphics.addMany([
+    outline(value("--color-selection-halo"), "--selection-halo-width"),
+    outline(value("--color-selection-outline"), "--selection-outline-width"),
+  ]);
+  showSelectionAtScale(view);
+}
+
+// Show the selection outline only while the selected geography's layer is drawn
+// at the view's scale. The web map sets visible scale ranges on layers and on
+// the group layers holding them (e.g. tracts), so every level must be in range.
+// The geography stays selected either way.
+function showSelectionAtScale(view) {
+  if (!selected) return;
+  let inRange = true;
+  for (let layer = selected.layer; layer && layer !== view.map; layer = layer.parent) {
+    const { minScale, maxScale } = layer;
+    if ((minScale && view.scale > minScale) || (maxScale && view.scale < maxScale)) inRange = false;
+  }
+  view.graphics.forEach((graphic) => (graphic.visible = inRange));
 }
 
 // ---- Projection switch: swaps the web map for one in another projection -------

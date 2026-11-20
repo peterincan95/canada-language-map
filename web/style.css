@@ -37,6 +37,8 @@
   --color-scrollbar-thumb: #5A4F52;     /* side panel scrollbar: the part you drag */
   --color-scrollbar-track: #1F1B1C;     /* side panel scrollbar: the channel behind it */
   --color-legend-group-bar: #5A4F52;    /* bar beside each language group in the legend */
+  --color-selection-outline: #FFFFFF;   /* outline of the clicked area on the map */
+  --color-selection-halo: #1F1B1C;      /* darker edge under it, so it shows on light fills */
 
   /* ---- 3. Shape and size ----------------------------------------------- */
   --panel-width: 360px;
@@ -45,6 +47,10 @@
   --panel-shadow: 0 4px 16px rgba(0, 0, 0, 0.16);
   --swatch-radius: 4px;                 /* colour swatch in the tooltip */
   --tooltip-bar-width: 240px;           /* stacked bar in the Official Languages tooltip */
+  --tooltip-title-size: 1.125rem;       /* place name at the top of the tooltip */
+  --tooltip-text-size: 0.75rem;         /* everything else in the tooltip */
+  --selection-outline-width: 1.5;       /* clicked area's outline on the map, in points */
+  --selection-halo-width: 3;            /* darker edge under it, in points */
   --legend-group-width: 120px;          /* legend: group name column */
   --legend-family-width: 124px;         /* legend: family name column */
   --legend-bar-width: 20px;             /* legend: family colour bar */
@@ -352,6 +358,8 @@ calcite-table-row.official-language {
 
 .tooltip-title {
   white-space: nowrap;
+  font-size: var(--tooltip-title-size);
+  line-height: 1.2;
   font-family: var(--font-heading);
   font-weight: var(--font-weight-heading);
 }
@@ -370,6 +378,7 @@ calcite-table-row.official-language {
 .tooltip-text {
   display: flex;
   flex-direction: column;
+  font-size: var(--tooltip-text-size);
 }
 #tooltip-swatch {
   border-radius: var(--swatch-radius);
@@ -394,7 +403,7 @@ calcite-table-row.official-language {
 .composition-values {
   display: flex;
   justify-content: space-between;
-  font-size: var(--calcite-font-size--1, 12px);
+  font-size: var(--tooltip-text-size);
 }
 /* Category name over its share */
 .composition-value {
