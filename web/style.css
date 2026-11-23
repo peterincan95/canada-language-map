@@ -24,11 +24,12 @@
   --color-heading: #fdf5d4;             /* geography name in the panel */
   --color-body-text: #fdf5d4;           /* prose, table text */
   --color-muted-text: #fff6d5;          /* table headings, secondary text */
-  --color-intro-text: #fdf5d4;          /* intro paragraph under the title */
+  --color-dialog-scrim: rgba(0, 0, 0, 0.45);  /* shade over the map behind the About dialog */
   --color-divider: #383032;             /* lines between sections */
   --color-accent: #fdf5d4;              /* selected toggle, notice stripe */
   --color-accent-text: #1f1b1c;         /* text on the selected toggle */
   --color-table-stripe: #383032;        /* alternate table rows */
+  --color-notice-background: #332C2E;   /* "Click on an area" notice */
   --color-official-language-text: #a89f92;  /* English and French rows in the table (italic) */
   --color-tooltip-background: #1f1b1c;
   --color-tooltip-text: #fdf5d4;
@@ -166,18 +167,72 @@ arcgis-map { display: block; height: 100%; }
 .panel-section { padding: var(--calcite-spacing-md, 12px); }
 .panel-section + .panel-section { padding-block-start: 0; }
 
-/* Intro paragraph between the title and the view toggle */
-/* Space under the title: Calcite's header adds 14px below it, so with no
-   bottom padding on the title this leaves ~19px between title and intro */
-.panel-section.intro { padding-block-start: 5px; }
-.intro p {
-  margin: 0;
-  color: var(--color-intro-text);
+/* View toggle, under the title. Calcite's header adds 14px below the title,
+   so with no bottom padding on it this leaves ~19px */
+.panel-section.views { padding-block-start: 5px; }
+
+/* "Click on an area" notice: its own background so it stands out from the panel */
+#info-empty {
+  --calcite-notice-background-color: var(--color-notice-background);
+  --calcite-color-foreground-1: var(--color-notice-background);
 }
-.intro p + p { margin-block-start: var(--calcite-spacing-sm, 8px); }
-/* Line under the intro: the section's own padding provides the gap below it,
-   so it sits evenly between the text and the view toggle */
-.info-divider.intro-divider { margin-block-end: 0; }
+
+/* Info button in the panel header */
+#info-button {
+  --calcite-action-background-color: var(--color-panel-header-background);
+  --calcite-action-background-color-hover: var(--color-divider);
+  --calcite-action-background-color-press: var(--color-divider);
+  --calcite-action-text-color: var(--color-body-text);
+  --calcite-action-text-color-press: var(--color-body-text);
+}
+
+/* ==========================================================================
+   About dialog: open on load
+   ========================================================================== */
+
+#info-dialog {
+  --calcite-dialog-background-color: var(--color-panel-background);
+  --calcite-dialog-border-color: transparent;
+  --calcite-dialog-corner-radius: var(--panel-radius);
+  --calcite-dialog-scrim-background-color: var(--color-dialog-scrim);
+  --calcite-color-foreground-1: var(--color-panel-background);
+  --calcite-color-background: var(--color-panel-background);
+  --calcite-color-text-1: var(--color-body-text);
+  --calcite-color-text-2: var(--color-body-text);
+  --calcite-color-text-3: var(--color-muted-text);
+  --calcite-color-border-3: var(--color-divider);
+  scrollbar-color: var(--color-scrollbar-thumb) var(--color-scrollbar-track);
+}
+.dialog-title {
+  margin: 0;
+  padding: var(--calcite-spacing-md, 12px) 0 0;   /* lines up with the text below */
+  font-family: var(--font-heading);
+  font-weight: var(--font-weight-heading);
+  font-size: 1.5rem;
+  color: var(--color-title);
+}
+.dialog-content {
+  font-family: var(--font-body);
+  color: var(--color-body-text);
+}
+.dialog-content p { margin: 0 0 var(--calcite-spacing-sm, 8px); }
+.dialog-subheading {
+  margin: var(--calcite-spacing-lg, 16px) 0 var(--calcite-spacing-sm, 8px);
+  font-family: var(--font-heading);
+  font-weight: var(--font-weight-heading);
+  font-size: 1.125rem;
+  color: var(--color-heading);
+}
+.dialog-content ul {
+  margin: 0;
+  padding-inline-start: 1.25em;
+}
+.dialog-content li + li { margin-block-start: var(--calcite-spacing-xs, 4px); }
+#info-dialog-close {
+  --calcite-button-background-color: var(--color-accent);
+  --calcite-button-border-color: var(--color-accent);
+  --calcite-button-text-color: var(--color-accent-text);
+}
 
 /* ==========================================================================
    Panel contents
@@ -187,6 +242,9 @@ arcgis-map { display: block; height: 100%; }
   margin: 0;
   padding: var(--calcite-spacing-md, 12px);
   padding-block-end: 0;
+  /* Calcite already insets the header slot, so no side padding: lines up with
+     the panel content and leaves room for the info button on the same line */
+  padding-inline: 0;
   font-family: var(--font-heading);
   font-weight: var(--font-weight-heading);
   font-size: 1.5rem;
