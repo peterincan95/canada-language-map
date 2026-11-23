@@ -44,11 +44,9 @@
     <!-- Left panel, floating over the map: title, view toggle, details of the clicked geography -->
     <calcite-panel id="side-panel" class="side-panel">
       <h1 slot="header-content" class="app-title">Canada's Linguistic Tapestry</h1>
-      <div class="panel-section intro">
-        <p>On the 2021 census, Canadians were asked what language they spoke most often at home. Respondents named over 200 different languages. Use this map to explore what languages Canadians are speaking and where.</p><p> The <b>Official Languages</b> view breaks down speakers of Canada's two official languages English and French, and all other languages. The <b>Other Languages</b> view breaks down the speakers of all 200+ non-official languages.</p>
-        <hr class="info-divider intro-divider" />
-      </div>
-      <div class="panel-section">
+      <!-- Reopens #info-dialog -->
+      <calcite-action id="info-button" slot="header-actions-end" icon="information" text="About this map" scale="s"></calcite-action>
+      <div class="panel-section views">
         <calcite-segmented-control id="view-switch" label="Map view" width="full">
           <calcite-segmented-control-item value="composition" checked>Official Languages</calcite-segmented-control-item>
           <calcite-segmented-control-item value="predominant">Other Languages</calcite-segmented-control-item>
@@ -90,6 +88,25 @@
       </div>
     </calcite-panel>
   </calcite-shell>
+
+  <!-- About the map: open on load, reopened from the panel's info button -->
+  <calcite-dialog id="info-dialog" modal open width="m" label="About this map">
+    <h2 slot="header-content" class="dialog-title">Canada's Linguistic Tapestry</h2>
+    <div class="dialog-content">
+      <p>On the 2021 census, Canadians were asked what language they spoke most often at home. Respondents named over 200 different languages. Use this map to explore what languages Canadians are speaking and where.</p>
+      <p>The <b>Official Languages</b> view breaks down speakers of Canada's two official languages English and French, and all other languages. The <b>Other Languages</b> view breaks down the speakers of all 200+ non-official languages.</p>
+      <h3 class="dialog-subheading">How to use this map</h3>
+      <ul>
+        <li>Switch between the <b>Official Languages</b> and <b>Other Languages</b> views in the side panel.</li>
+        <li>Hover over an area for a quick summary of the languages spoken there.</li>
+        <li>Click an area to see its full breakdown in the side panel.</li>
+        <li>Zoom in for more detail: provinces and territories give way to census divisions, and then to census tracts in larger cities.</li>
+        <li>In the <b>Other Languages</b> view, open the legend at the top right to see which colour stands for which language family.</li>
+        <li>Use the switch at the bottom right to change the map's projection.</li>
+      </ul>
+    </div>
+    <calcite-button id="info-dialog-close" slot="footer-end">Start exploring</calcite-button>
+  </calcite-dialog>
 
   <!-- Language legend: groups, families and their colours. Filled by app.js -->
   <calcite-popover id="legend-popover" label="Legend" placement="left-start" trigger-disabled

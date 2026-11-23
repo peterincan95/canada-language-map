@@ -442,6 +442,12 @@ document.getElementById("view-switch").addEventListener("calciteSegmentedControl
   showInfo();
 });
 
+// ---- About dialog: open on load (index.html), reopened from the panel ----------
+
+const infoDialog = document.getElementById("info-dialog");
+document.getElementById("info-button").addEventListener("click", () => (infoDialog.open = true));
+document.getElementById("info-dialog-close").addEventListener("click", () => (infoDialog.open = false));
+
 // ---- Language legend (Other Languages view) ------------------------------------
 
 const legendButton = document.getElementById("legend-button");
